@@ -6,10 +6,27 @@
   "version": "1.0",
 
   "browser_action": {
-    "default_icon": "img/prism.png",
+    "default_icon": "assets/img/prism.png",
     "default_popup": "popup.html"
   },
+ 
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+      "css": ["style.css"],
+      "js": ["brush.js"],
+      "all_frames": "true"
+    }
+  ],
+
+  "background": {
+    // "persistent": false,
+    "scripts": ["bg.js"]
+  },
+
   "permissions": [
+    "http://*/",
+    "contextMenus",
     "activeTab",
     "tabs"
   ]
