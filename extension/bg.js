@@ -11,20 +11,34 @@ function loadContentScriptInAllTabs() {
   });
 }
 
+chrome.extension.onRequest.addListener(
+    function(request, sender, sendResponse) {
+        alert("Back!");
+        alert("Patching" + request.selectedText);
+});
+
 function sendPatchPrequest() {
-  // body...
+  alert("Yo!")
+
+  chrome.tabs.getSelected(null, function(tab) {
+      chrome.tabs.sendRequest(tab.id, {"type":"patch"});
+  }); 
 }
 
 function sendNoteRequest() {
-  // body...
+  alert("Yo!")
+
+  chrome.tabs.getSelected(null, function(tab) {
+    chrome.tabs.sendRequest(tab.id, {"type":"note"});
+}); 
 }
 
 function createContextMenus() {
-  var parent = chrome.contextMenus.create({"title": "Patch", "onclick": click,
+  var parent = chrome.contextMenus.create({"title": "Patch",
     "contexts":["page","selection","link","editable","image"]});
-  var child1 = chrome.contextMenus.create({"title": "Add patch", "parentId": parent, "onclick": click,
+  var child1 = chrome.contextMenus.create({"title": "Add patch", "parentId": parent, "onclick": sendPatchPrequest,
     "contexts":["page","selection","link","editable","image"]});
-  var child2 = chrome.contextMenus.create({"title": "Add note", "parentId": parent, "onclick": click,
+  var child2 = chrome.contextMenus.create({"title": "Add note", "parentId": parent, "onclick": sendNoteRequest,
     "contexts":["page","selection","link","editable","image"]});
 }
 
@@ -48,3 +62,10 @@ function createContextMenus() {
             {'speakSelection': true});
       });
 })()
+
+//*********************
+function initBackground() {
+  // body...
+}
+
+initBackground();

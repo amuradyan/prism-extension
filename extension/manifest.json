@@ -12,10 +12,9 @@
  
   "content_scripts": [
     {
-      "matches": ["http://*/*"],
-      "css": ["style.css"],
-      "js": ["brush.js"],
-      "all_frames": "true"
+      "matches": ["http://*/*", "https://*/*"],
+      // "css": ["style.css"],
+      "js": ["brush.js"]    
     }
   ],
 
