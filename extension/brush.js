@@ -2,7 +2,7 @@ function initContentScript() {
 	// body...
 }
 
-function getSelection() {
+function getSelectedText() {
   var focused = document.activeElement;
   var selectedText;
   if (focused) {
@@ -25,9 +25,9 @@ chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
         alert("Got it!");
         if(request.type == "patch"){
-			alert("Patching" + getSelection());
+			alert("Patching" + getSelectedText());
         } else if(request.type == "note"){
-			alert("Noting" + getSelection());
+			alert("Noting" + getSelectedText());
         }
 });
 
