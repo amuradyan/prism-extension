@@ -1,3 +1,12 @@
+function createContextMenus() {
+  var parent = chrome.contextMenus.create({"title": "Patch",
+    "contexts":["page","selection","link","editable","image"]});
+  var child1 = chrome.contextMenus.create({"title": "Add patch", "parentId": parent, "onclick": sendPatchPrequest,
+    "contexts":["page","selection","link","editable","image"]});
+  var child2 = chrome.contextMenus.create({"title": "Add note", "parentId": parent, "onclick": sendNoteRequest,
+    "contexts":["page","selection","link","editable","image"]});
+} 
+
 function loadContentScriptInAllTabs() {
   chrome.windows.getAll({'populate': true}, function(windows) {
     for (var i = 0; i < windows.length; i++) {
@@ -14,32 +23,37 @@ function loadContentScriptInAllTabs() {
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
         alert("Back!");
-        alert("Patching" + request.selectedText);
+        alert("Patching" + request.selection);
 });
 
 function sendPatchPrequest() {
-  alert("Yo!")
+  var modal = document.getElementById('exo_modal');
+  alert(modal);
+  var exo = document.getElementById('exo');
+  modal.style.position = "absolute";
+  modal.style.backgroundColor = "lightgray";
+  modal.style.width = "100%";
+  modal.style.height = "100%";
+  modal.style.top = "0";
+  modal.style.left = "0";
+  modal.style.opacity = "0.9";
+  exo.style.display = "block";
+  // console.log(modal);
+  alert("patch2");
+  // chrome.runtime.sendMessage("mnpgbgkfiiocopihnhnagkigjidhbmnb", {data: "data"});
 
-  chrome.tabs.getSelected(null, function(tab) {
-      chrome.tabs.sendRequest(tab.id, {"type":"patch"});
-  }); 
+  // chrome.tabs.getSelected(null, function(tab) {
+  //     chrome.tabs.sendRequest(tab.id, {"type":"patch"});
+  // }); 
 }
 
 function sendNoteRequest() {
   alert("Yo!")
 
+  showPatchModal()
   chrome.tabs.getSelected(null, function(tab) {
     chrome.tabs.sendRequest(tab.id, {"type":"note"});
 }); 
-}
-
-function createContextMenus() {
-  var parent = chrome.contextMenus.create({"title": "Patch",
-    "contexts":["page","selection","link","editable","image"]});
-  var child1 = chrome.contextMenus.create({"title": "Add patch", "parentId": parent, "onclick": sendPatchPrequest,
-    "contexts":["page","selection","link","editable","image"]});
-  var child2 = chrome.contextMenus.create({"title": "Add note", "parentId": parent, "onclick": sendNoteRequest,
-    "contexts":["page","selection","link","editable","image"]});
 }
 
 (function init(){
@@ -62,10 +76,3 @@ function createContextMenus() {
             {'speakSelection': true});
       });
 })()
-
-//*********************
-function initBackground() {
-  // body...
-}
-
-initBackground();

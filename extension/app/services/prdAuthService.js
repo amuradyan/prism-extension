@@ -1,6 +1,6 @@
 angular.module('mainModule')
-.factory('prdAuthService', ['$rootScope', '$http', '$location', 'userService',
-                    function ($rootScope, $http, $location, userService) {
+.factory('prdAuthService', ['$rootScope', '$http', '$location', 
+                    function ($rootScope, $http, $location) {
 
     var config = {
         headers : {
@@ -29,7 +29,6 @@ angular.module('mainModule')
                         token.token_id = response.headers('access-token');
                         token.expiry = response.headers('expires');
                         console.log(response.body);
-                        userService.initUser(credentials.username, token);
                         $rootScope.authenticated = true;
                         $location.path('/home');
                     } else {
@@ -50,7 +49,6 @@ angular.module('mainModule')
                     if(response.headers('access-token') && response.headers('expires')) {
                         token.token_id = response.headers('access-token');
                         token.expiry = response.headers('expires');
-                        userService.initUser(credentials.username, token);
                         $rootScope.authenticated = true;
                         $location.path('/');
                     } else {
