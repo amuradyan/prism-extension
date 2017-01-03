@@ -1,18 +1,53 @@
+function openModal(data) {
+
+  var modal = document.getElementById('popup_modal');
+  var patchView = document.getElementById('patch_body');
+  var noteView = document.getElementById('note_body');
+  var error_text = document.getElementById('error_text');
+  var note_text = document.getElementById('note_text');
+  console.log(data);
+
+  modal.style.display = "block"; /* Hidden by default */
+
+  if(data.type == "patch"){
+    patchView.style.display = "block";
+    noteView.style.display = "none";
+    error_text.innerHTML = data.text;
+  } else if(data.type == "note"){
+    patchView.style.display = "none";
+    noteView.style.display = "block";
+    note_text.innerHTML = data.text;
+  }
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('popup_modal');
+
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+function closeModal() {
+  var modal = document.getElementById('popup_modal');
+  modal.style.display = "none";
+}
+
 function addModal () { 
-  // create a new div element 
-  // and give it some content 
-  var newDiv = document.createElement("div"); 
-  newDiv.setAttribute("id", "exo_modal");
-  newDiv.innerHTML = "<div id=\"exo\">" +
+
+  // Patch section
+  var popupModal = document.createElement('div'); 
+  popupModal.setAttribute('id', 'popup_modal');
+  popupModal.innerHTML = "<div id='popup_body'>" +
 " <div>" +
-"   <span>Prism patch</span>" +
-"   <span style=\"float: right\">X</span>" +
+"   <span>Prism </span>" +
+"   <span id='close' style='float: right'>X</span>" +
 " </div>" +
-" <div>" +
+" <div id='patch_body'>" +
 "   Error" +
-"   <textarea>exo</textarea>" +
+"   <textarea id='error_text'></textarea>" +
 "   Patch" +
-"   <textarea>hopar</textarea>" +
+"   <textarea id='patch_text'></textarea>" +
 "   Save to " +
 "   <select>" +
 "     <option>1</option>" +
@@ -23,13 +58,30 @@ function addModal () {
 "     <option>6</option>" +
 "   </select>" +
 "   Topics" +
-"   <input type=\"text\" placeholder=\"exoexo\">" +
-"   <button>Save</button>" +
-"   <button>Cancel</button>" +
+"   <input type='text'>" +
+"   <button id='save'>Save</button>" +
+"   <button id='cancel'>Cancel</button>" +
+" </div>" +
+" <div id='note_body'>" +
+"   Note" +
+"   <textarea id='note_text'></textarea>" +
+"   Save to " +
+"   <select>" +
+"     <option>1</option>" +
+"     <option>2</option>" +
+"     <option>3</option>" +
+"     <option>4</option>" +
+"     <option>5</option>" +
+"     <option>6</option>" +
+"   </select>" +
+"   Topics" +
+"   <input type='text'>" +
+"   <button id='save'>Save</button>" +
+"   <button id='cancel'>Cancel</button>" +
 " </div>" +
 "</div>"
 
-  document.body.append(newDiv); 
+  document.body.append(popupModal); 
 }
 
 function getSelectedText() {
@@ -47,21 +99,26 @@ function getSelectedText() {
     var selectedText = sel.toString();
   }
 
-  console.log("Yo" + selectedText)
   chrome.extension.sendRequest({'selection': selectedText});
   return selectedText;
 }
 
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
-        alert("Got it!");
-        if(request.type == "patch"){
-			alert("Patching" + getSelectedText());
-        } else if(request.type == "note"){
-			alert("Noting" + getSelectedText());
-        }
+      if(request.type == "patch" || request.type == "note"){
+		     openModal({type: request.type, text: getSelectedText()});
+      } else {
+		     console.log("Unknown request type");
+      }
 });
 
-(function initContentScript(argument) {
+function addEventListeners() {
+  document.getElementById('save').addEventListener('click', closeModal);
+  document.getElementById('cancel').addEventListener('click', closeModal);
+  document.getElementById('close').addEventListener('click', closeModal);
+}
+
+(function initContentScript() {
 	addModal();
+  addEventListeners();
 })();
