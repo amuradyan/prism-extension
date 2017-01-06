@@ -14,13 +14,13 @@
     {
       "matches": ["http://*/*", "https://*/*"],
       "css": ["mystyle.css"],
-      "js": ["brush.js"]    
+      "js": ["build/content.js"]    
     }
   ],
 
   "background": {
     // "persistent": false,
-    "scripts": ["bg.js"]
+    "scripts": ["build/background.js"]
   },
 
   "permissions": [
