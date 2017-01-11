@@ -1,31 +1,26 @@
+var loki = require("lokijs");
 var getSelectedText = require('./brush.js');
 
-// 
 function openModal(data) {
+  if(data.type == 'facet') {
+    var modal = document.getElementById('popup_modal');
+    var patchView = document.getElementById('facet_body');
+    var error_text = document.getElementById('error_text');
 
-  var modal = document.getElementById('popup_modal');
-  var patchView = document.getElementById('patch_body');
-  var noteView = document.getElementById('note_body');
-  var error_text = document.getElementById('error_text');
-  var note_text = document.getElementById('note_text');
-  console.log(data);
-
-  modal.style.display = "block"; /* Hidden by default */
-
-  if(data.type == "patch"){
+    modal.style.display = "block"; /* Hidden by default */
     patchView.style.display = "block";
-    noteView.style.display = "none";
     error_text.innerHTML = data.text;
-  } else if(data.type == "note"){
-    patchView.style.display = "none";
-    noteView.style.display = "block";
-    note_text.innerHTML = data.text;
   }
 }
 
 function closeModal() {
   var modal = document.getElementById('popup_modal');
   modal.style.display = "none";
+}
+
+function savePatch() {
+  chrome.extension.sendRequest({'patch': 'patch body'});
+  closeModal();
 }
 
 function addModal () { 
@@ -35,39 +30,27 @@ function addModal () {
   popupModal.setAttribute('id', 'popup_modal');
   popupModal.innerHTML = "<div id='popup_body'>" +
 " <div>" +
-"   <span>Prism </span>" +
+"   <span>Prism facet</span>" +
 "   <span id='close' style='float: right'>X</span>" +
 " </div>" +
-" <div id='patch_body'>" +
+" <div id='facet_body'>" +
 "   Error" +
 "   <textarea id='error_text'></textarea>" +
 "   Patch" +
 "   <textarea id='patch_text'></textarea>" +
 "   Save to " +
 "   <select>" +
-"     <option>1</option>" +
-"     <option>2</option>" +
-"     <option>3</option>" +
-"     <option>4</option>" +
-"     <option>5</option>" +
-"     <option>6</option>" +
+"     <option>View 1</option>" +
+"     <option>View 2</option>" +
+"     <option>View 3</option>" +
+"     <option>View 4</option>" +
+"     <option>View 5</option>" +
+"     <option>View 6</option>" +
 "   </select>" +
-"   Topics" +
-"   <input type='text'>" +
-"   <button id='save'>Save</button>" +
-"   <button id='cancel'>Cancel</button>" +
-" </div>" +
-" <div id='note_body'>" +
-"   Note" +
-"   <textarea id='note_text'></textarea>" +
-"   Save to " +
+"   Facet type" +
 "   <select>" +
-"     <option>1</option>" +
-"     <option>2</option>" +
-"     <option>3</option>" +
-"     <option>4</option>" +
-"     <option>5</option>" +
-"     <option>6</option>" +
+"     <option>Active</option>" +
+"     <option>Passive</option>" +
 "   </select>" +
 "   Topics" +
 "   <input type='text'>" +
@@ -89,22 +72,29 @@ window.onclick = function(event) {
 }
 
 function addEventListeners() {
-  document.getElementById('save').addEventListener('click', closeModal);
+  document.getElementById('save').addEventListener('click', savePatch);
   document.getElementById('cancel').addEventListener('click', closeModal);
   document.getElementById('close').addEventListener('click', closeModal);
 }
 
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
-      if(request.type == "patch" || request.type == "note"){
+      if(request.type == "facet" || request.type == "removalFacet"){
          openModal({type: request.type, text: getSelectedText()});
       } else {
          console.log("Unknown request type");
       }
 });
 
-
-(function bootstrap() {
-	addModal();
+function init() {
+  addModal();
   addEventListeners();
-})();
+}
+
+document.onreadystatechange = function () {
+  if (document.readyState === "complete") {
+    init();
+    var db = new loki('example.db');
+    var users = db.addCollection('users');
+  }
+}

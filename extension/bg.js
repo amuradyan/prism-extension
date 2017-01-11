@@ -1,9 +1,9 @@
 function createContextMenus() {
   var parent = chrome.contextMenus.create({"title": "Patch",
     "contexts":["page","selection","link","editable","image"]});
-  var child1 = chrome.contextMenus.create({"title": "Add patch", "parentId": parent, "onclick": sendPatchPrequest,
+  var addFacet = chrome.contextMenus.create({"title": "Add facet", 'id': 'facet', "parentId": parent,
     "contexts":["page","selection","link","editable","image"]});
-  var child2 = chrome.contextMenus.create({"title": "Add note", "parentId": parent, "onclick": sendNoteRequest,
+  var remove = chrome.contextMenus.create({"title": "Remove", 'id': 'removalFacet', "parentId": parent,
     "contexts":["page","selection","link","editable","image"]});
 } 
 
@@ -14,7 +14,7 @@ function loadContentScriptInAllTabs() {
       for (var j = 0; j < tabs.length; j++) {
         chrome.tabs.executeScript(
             tabs[j].id,
-            {file: 'brush.js', allFrames: true});
+            {file: './build/content.js', allFrames: true});
       }
     }
   });
@@ -24,17 +24,17 @@ chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
 });
 
-function sendPatchPrequest() {
-  chrome.tabs.getSelected(null, function(tab) {
-      chrome.tabs.sendRequest(tab.id, {"type":"patch"});
-  }); 
-}
-
-function sendNoteRequest() {
-  chrome.tabs.getSelected(null, function(tab) {
-    chrome.tabs.sendRequest(tab.id, {"type":"note"});
-}); 
-}
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+  if(info.menuItemId == 'facet') {
+      chrome.tabs.getSelected(null, function(tab) {
+        chrome.tabs.sendRequest(tab.id, {"type":"facet"});
+    }); 
+  } else if(info.menuItemId == 'removalFacet') {
+      chrome.tabs.getSelected(null, function(tab) {
+        chrome.tabs.sendRequest(tab.id, {"type":"removalFacet"});
+    }); 
+  }
+});
 
 (function init(){
   createContextMenus()
