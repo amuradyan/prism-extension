@@ -1,27 +1,7 @@
 var loki = require("lokijs");
-var getSelectedText = require('./brush.js');
+var Facet = require('./facet.js')
 
-function openModal(data) {
-  if(data.type == 'facet') {
-    var modal = document.getElementById('popup_modal');
-    var patchView = document.getElementById('facet_body');
-    var error_text = document.getElementById('error_text');
-
-    modal.style.display = "block"; /* Hidden by default */
-    patchView.style.display = "block";
-    error_text.innerHTML = data.text;
-  }
-}
-
-function closeModal() {
-  var modal = document.getElementById('popup_modal');
-  modal.style.display = "none";
-}
-
-function savePatch() {
-  chrome.extension.sendRequest({'patch': 'patch body'});
-  closeModal();
-}
+var selection;
 
 function addModal () { 
 
@@ -77,8 +57,44 @@ function addEventListeners() {
   document.getElementById('close').addEventListener('click', closeModal);
 }
 
-chrome.extension.onRequest.addListener(
-    function(request, sender, sendResponse) {
+function getSelectedText() {
+
+  var focused = document.activeElement;
+  selection = window.getSelection()
+  var range = selection.getRangeAt(0)
+  var startCon = range.startContainer
+  var endCon = range.endContainer
+
+  return selection.toString();
+}
+
+function savePatch() {
+  var error_text = document.getElementById('error_text');
+  var facet = new Facet(selection, error_text.innerHTML);
+  chrome.extension.sendMessage({'operation': 'addFacet', 'facet': facet});
+  closeModal();
+}
+
+function openModal(data) {
+  if(data.type == 'facet') {
+    var modal = document.getElementById('popup_modal');
+    var patchView = document.getElementById('facet_body');
+    var error_text = document.getElementById('error_text');
+
+    modal.style.display = "block"; /* Hidden by default */
+    patchView.style.display = "block";
+    error_text.innerHTML = data.text;
+  }
+}
+
+function closeModal() {
+  var modal = document.getElementById('popup_modal');
+  modal.style.display = "none";
+}
+
+chrome.extension.onMessage.addListener(
+    function(request, sender, respFun) {
+      console.log(request);
       if(request.type == "facet" || request.type == "removalFacet"){
          openModal({type: request.type, text: getSelectedText()});
       } else {

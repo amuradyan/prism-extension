@@ -2,7 +2,11 @@
 // Each facet holds an object of selection 
 // and a replacement for former.
 
-module.exports.Facet = function Facet() {
+module.exports = Facet;
+
+function Facet(selection, replacement) {
+	this.sourceSelection = selection;
+	this.replacement = replacement;
 	/*
 	-- Fields
 	selection object
