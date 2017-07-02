@@ -1,5 +1,7 @@
-var loki = require("lokijs");
-var Facet = require('./facet.js')
+var loki = require('lokijs');
+var request = require('superagent');
+var FacetFactory = require('./facet.js')
+var PrismFactory = require('./prism.js')
 
 var selection;
 
@@ -18,8 +20,8 @@ function addModal () {
 "   <textarea id='error_text'></textarea>" +
 "   Patch" +
 "   <textarea id='patch_text'></textarea>" +
-"   Save to " +
-"   <select>" +
+"   Attach to " +
+"   <select id='prism_list'>" +
 "     <option>View 1</option>" +
 "     <option>View 2</option>" +
 "     <option>View 3</option>" +
@@ -28,9 +30,9 @@ function addModal () {
 "     <option>View 6</option>" +
 "   </select>" +
 "   Facet type" +
-"   <select>" +
-"     <option>Active</option>" +
-"     <option>Passive</option>" +
+"   <select id='facet_types'>" +
+"     <option id='active_facet'>Active</option>" +
+"     <option id='passive_facet'>Passive</option>" +
 "   </select>" +
 "   Topics" +
 "   <input type='text'>" +
@@ -68,9 +70,25 @@ function getSelectedText() {
   return selection.toString();
 }
 
+function getSelection() {
+
+  var focused = document.activeElement;
+  selection = window.getSelection()
+  var range = selection.getRangeAt(0)
+  var startCon = range.startContainer
+  var endCon = range.endContainer
+
+  return selection;
+}
+
 function savePatch() {
-  var error_text = document.getElementById('error_text');
-  var facet = new Facet(selection, error_text.innerHTML);
+  var errorText = document.getElementById('error_text');
+  var facetSelectElem = document.getElementById('facet_types');
+  var facetType = facetSelectElem.options[facetSelectElem.selectedIndex].text;
+
+  var facet = FacetFactory.createFacet(selection, errorText.innerHTML, facetType);
+  var prism = PrismFactory.createPrism();
+  
   chrome.extension.sendMessage({'operation': 'addFacet', 'facet': facet});
   closeModal();
 }
@@ -79,11 +97,16 @@ function openModal(data) {
   if(data.type == 'facet') {
     var modal = document.getElementById('popup_modal');
     var patchView = document.getElementById('facet_body');
-    var error_text = document.getElementById('error_text');
+    var errorText = document.getElementById('error_text');
+    var activeFacet = document.getElementById('active_facet');
 
     modal.style.display = "block"; /* Hidden by default */
     patchView.style.display = "block";
-    error_text.innerHTML = data.text;
+    errorText.innerHTML = data.text;
+    activeFacet.selected = true;
+  } else {
+    var passiveFacet = document.getElementById('passive_facet');
+    passiveFacet.selected = true;
   }
 }
 
@@ -93,12 +116,17 @@ function closeModal() {
 }
 
 chrome.extension.onMessage.addListener(
-    function(request, sender, respFun) {
-      console.log(request);
-      if(request.type == "facet" || request.type == "removalFacet"){
-         openModal({type: request.type, text: getSelectedText()});
+    function(req, sender, respFun) {
+      if(req.type == "facet" || req.type == "removalFacet"){
+        request
+          .get('https://localhost:11111/')
+          .end(function (err, res) {
+            console.log(res);
+          });
+        openModal({type: req.type, text: getSelectedText()});
+        console.log(getSelection())
       } else {
-         console.log("Unknown request type");
+        console.log("Unknown request type");
       }
 });
 

@@ -2,19 +2,17 @@
 // Each facet holds an object of selection 
 // and a replacement for former.
 
-module.exports = Facet;
+module.exports = {
+	createFacet: function (selection, replacement, type) {
+		var facet = {};
+		facet.sourceSelection = selection;
+		facet.replacement = replacement;
+		facet.type = type;
 
-function Facet(selection, replacement) {
-	this.sourceSelection = selection;
-	this.replacement = replacement;
-	/*
-	-- Fields
-	selection object
-	replacement object
-	-- Active facets are applied to web page after it loads, when passive facets are serving as notes
-	type [active, passive, diabled]
-
-	-- Operations
-	getter/setters
-	*/
-}
+		return facet;
+	},
+	
+	createEmptyFacet: function () {
+		createFacet(null, null, null);
+	}
+};

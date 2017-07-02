@@ -1,3 +1,5 @@
+var request = require('superagent');
+
 function createContextMenus() {
   var parent = chrome.contextMenus.create({'title': 'Patch',
     'contexts':['page','selection','link','editable','image']});
@@ -22,7 +24,7 @@ function loadContentScriptInAllTabs() {
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    alert(request.operation);
+    alert(request);
 });
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {

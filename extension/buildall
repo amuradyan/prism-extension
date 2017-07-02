@@ -1,0 +1,2 @@
+webpack --config content.config.js
+webpack --config background.config.js
