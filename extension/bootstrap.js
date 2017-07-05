@@ -2,6 +2,7 @@ var loki = require('lokijs');
 var request = require('superagent');
 var FacetFactory = require('./facet.js')
 var PrismFactory = require('./prism.js')
+var popupModalHTML = require("html-loader!./popupModal.html");
 
 var selection;
 
@@ -10,37 +11,8 @@ function addModal () {
   // Patch section
   var popupModal = document.createElement('div'); 
   popupModal.setAttribute('id', 'popup_modal');
-  popupModal.innerHTML = "<div id='popup_body'>" +
-" <div>" +
-"   <span>Prism facet</span>" +
-"   <span id='close' style='float: right'>X</span>" +
-" </div>" +
-" <div id='facet_body'>" +
-"   Error" +
-"   <textarea id='error_text'></textarea>" +
-"   Patch" +
-"   <textarea id='patch_text'></textarea>" +
-"   Attach to " +
-"   <select id='prism_list'>" +
-"     <option>View 1</option>" +
-"     <option>View 2</option>" +
-"     <option>View 3</option>" +
-"     <option>View 4</option>" +
-"     <option>View 5</option>" +
-"     <option>View 6</option>" +
-"   </select>" +
-"   Facet type" +
-"   <select id='facet_types'>" +
-"     <option id='active_facet'>Active</option>" +
-"     <option id='passive_facet'>Passive</option>" +
-"   </select>" +
-"   Topics" +
-"   <input type='text'>" +
-"   <button id='save'>Save</button>" +
-"   <button id='cancel'>Cancel</button>" +
-" </div>" +
-"</div>"
 
+  popupModal.innerHTML = popupModalHTML;
   document.body.append(popupModal); 
 }
 
@@ -141,4 +113,22 @@ document.onreadystatechange = function () {
     var db = new loki('example.db');
     var users = db.addCollection('users');
   }
+}
+
+function readFile(file)
+{
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                var allText = rawFile.responseText;
+                fileDisplayArea.innerText = allText 
+            }
+        }
+    }
+    rawFile.send(null);
 }

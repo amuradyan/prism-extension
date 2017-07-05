@@ -1,11 +1,11 @@
 // Contains facets and operations over them.
-
-function Prism(facets) {
-	this.facets = facets
+function Prism(url) {
+    this.url = url;
+    this.facets = [];
 }
 
 module.exports = {
-	createPrism: function (facets) {
-		return new Prism(facets);
-	}
+    createPrism: function(url) {
+        return new Prism(url);
+    }
 };
