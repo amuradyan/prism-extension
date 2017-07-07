@@ -1,11 +1,9 @@
-var request = require('superagent');
-
 function createContextMenus() {
   var parent = chrome.contextMenus.create({'title': 'Patch',
     'contexts':['page','selection','link','editable','image']});
-  var addFacet = chrome.contextMenus.create({'title': 'Add facet', 'id': 'facet', 'parentId': parent,
+  var addFacet = chrome.contextMenus.create({'title': 'Add facet', 'id': 'edit', 'parentId': parent,
     'contexts':['page','selection','link','editable','image']});
-  var remove = chrome.contextMenus.create({'title': 'Remove', 'id': 'removalFacet', 'parentId': parent,
+  var remove = chrome.contextMenus.create({'title': 'Remove', 'id': 'remove', 'parentId': parent,
     'contexts':['page','selection','link','editable','image']});
 } 
 
@@ -22,19 +20,14 @@ function loadContentScriptInAllTabs() {
   });
 }
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    alert(request);
-});
-
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-  if(info.menuItemId == 'facet') {
+  if(info.menuItemId == 'edit') {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-      chrome.tabs.sendMessage(tabs[0].id, {'type':'facet'}, function(response) {});  
+      chrome.tabs.sendMessage(tabs[0].id, {'type':'edit'}, function(response) {});  
     });
-  } else if(info.menuItemId == 'removalFacet') {
+  } else if(info.menuItemId == 'remove') {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-      chrome.tabs.sendMessage(tabs[0].id, {'type':'removalFacet'}, function(response) {});  
+      chrome.tabs.sendMessage(tabs[0].id, {'type':'remove'}, function(response) {});  
     });
   }
 });

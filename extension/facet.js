@@ -5,8 +5,6 @@
 function Facet(selection, replacement) {
     this.source = selection;
     this.replacement = replacement;
-
-    return facet;
 }
 
 module.exports = {
