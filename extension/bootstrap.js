@@ -1,5 +1,3 @@
-var loki = require('lokijs');
-var request = require('superagent');
 var FacetFactory = require('./facet.js');
 var PrismFactory = require('./prism.js');
 var selectionSerializer = require('serialize-selection');
@@ -35,20 +33,24 @@ function savePatch() {
   var facetType = facetSelectElem.options[facetSelectElem.selectedIndex].text;
 
   var facet = FacetFactory.createFacet(selection, errorText.innerHTML, facetType);
+
+  // Check if a prism for given URL does not exists
   var prism = PrismFactory.createPrism();
 
-  // chrome.extension.sendMessage({ 'operation': 'addFacet', 'facet': facet });
 
   selection = window.getSelection();
   var serSel = selectionSerializer.save();
   console.log(serSel);
 
-  request
-    .post('https://localhost:11111/facet')
-    .send(FacetFactory.createFacet(serSel, ''))
-    .end(function(err, res) {
-      console.log(res);
-    });
+  chrome.runtime.sendMessage({ operation: 'getTabName' }, function(response) {
+    console.log(response);
+  });
+
+  const newFacet = FacetFactory.createFacet(serSel, '');
+
+  chrome.runtime.sendMessage({ operation: 'addFacet', facet: newFacet }, function(response) {
+    console.log(response);
+  });
 
   closeModal();
 }
@@ -89,22 +91,5 @@ function init() {
 document.onreadystatechange = function() {
   if (document.readyState === 'complete') {
     init();
-    var db = new loki('example.db');
-    var users = db.addCollection('users');
   }
-}
-
-function readFile(file) {
-  var rawFile = new XMLHttpRequest();
-  rawFile.open('GET', file, false);
-  rawFile.onreadystatechange = function() {
-    if (rawFile.readyState === 4) {
-      if (rawFile.status === 200 || rawFile.status == 0) {
-        var allText = rawFile.responseText;
-        fileDisplayArea.innerText = allText
-      }
-    }
-  }
-
-  rawFile.send(null);
 }
