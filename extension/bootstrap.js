@@ -34,18 +34,9 @@ function savePatch() {
 
   var facet = FacetFactory.createFacet(selection, errorText.innerHTML, facetType);
 
-  // Check if a prism for given URL does not exists
-  var prism = PrismFactory.createPrism();
-
-
   selection = window.getSelection();
   var serSel = selectionSerializer.save();
   console.log(serSel);
-
-  chrome.runtime.sendMessage({ operation: 'getTabName' }, function(response) {
-    console.log(response);
-  });
-
   const newFacet = FacetFactory.createFacet(serSel, '');
 
   chrome.runtime.sendMessage({ operation: 'addFacet', facet: newFacet }, function(response) {
@@ -75,8 +66,10 @@ function closeModal() {
 chrome.extension.onMessage.addListener(
   function(req, sender, respFun) {
     if (req.type == 'edit') {
+      console.log('Facet edit');
       openModal({ type: req.type, text: window.getSelection().toString() });
     } else if (req.type == 'remove') {
+      console.log('Facet remove');
       savePatch();
     } else {
       console.log('Unknown request type');
@@ -86,6 +79,10 @@ chrome.extension.onMessage.addListener(
 function init() {
   addModal();
   addEventListeners();
+
+  chrome.runtime.sendMessage({ operation: 'ping'}, function(response) {
+    console.log(response);
+  });
 }
 
 document.onreadystatechange = function() {

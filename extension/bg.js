@@ -26,8 +26,9 @@ function loadContentScriptInAllTabs() {
     for (var i = 0; i < windows.length; i++) {
       var tabs = windows[i].tabs;
       for (var j = 0; j < tabs.length; j++) {
-        chrome.tabs.executeScript(
-          tabs[j].id, { file: './build/content.js', allFrames: true });
+        if(!tabs[j].url.substring('chrome://'))
+          chrome.tabs.executeScript(
+            tabs[j].id, { file: './build/content.js', allFrames: true });
       }
     }
   });
@@ -35,10 +36,12 @@ function loadContentScriptInAllTabs() {
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
   if (info.menuItemId == 'edit') {
+    console.log('Facet edit');
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
       chrome.tabs.sendMessage(tabs[0].id, { 'type': 'edit' }, function(response) {});
     });
   } else if (info.menuItemId == 'remove') {
+    console.log('Facet remove');
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
       chrome.tabs.sendMessage(tabs[0].id, { 'type': 'remove' }, function(response) {});
     });
@@ -48,17 +51,23 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.operation == 'addFacet') {
-      saveFacet(request.facet, sender.tabs.url);
+      saveFacet(request.facet, sender.tab.url);
+    } else if (request.operation == 'ping') {
+      console.log('Fetching prism for ' + sender.tab.url);
+      fetchPrismForURL(sender.tab.url);
+      sendResponse('pong');
     }
-  });
+});
 
 function saveFacet(facet, url) {
   // TODO: Check if the user alrady has a prism for current URL
 
+  console.log('Saving a facet')
   request
     .post('https://localhost:11111/facet')
     .send(facet)
     .end(function(err, res) {
+      console.log('Response for saving facet');
       console.log(res);
     });
 }
@@ -71,18 +80,33 @@ function createAndFillDB() {
     var allTabURLs = [];
 
     for (var i = tabs.length - 1; i >= 0; i--) {
-      allTabURLs.push(tabs[i].url);
+      if(tabs[i].url.substring('chrome://') !== -1)
+        allTabURLs.push(tabs[i].url);
     }
 
     request
       .get('https://localhost:11111/prism')
-      .query({ URL: JSON.stringify(allTabURLs) })
+      .query({ URLs: JSON.stringify(allTabURLs) })
       .end(function(err, res) {
         if (err == null) {
-          prisms.insert(res.body);
+          res.body.forEach( (e) => { console.log(e); prisms.insert(e) });
         }
+        else console.log(err)
       });
   });
+}
+
+function fetchPrismForURL(url) {
+  request
+    .get('https://localhost:11111/prism')
+    .query({ URLs: JSON.stringify(url) })
+    .end(function(err, res) {
+        console.log('Fetched prism for ' + url);
+      if (err == null) {
+        res.body.forEach( (e) => { console.log(e); prisms.insert(e) });
+        console.log(res.body);
+      }
+    });
 }
 
 (function init() {
