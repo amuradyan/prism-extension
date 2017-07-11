@@ -1,30 +1,32 @@
-var Loki = require('lokijs');
-var request = require('superagent');
+const Loki = require('lokijs');
+const request = require('superagent');
+
+const db = new Loki('prism');
+const prisms = db.addCollection('prisms');
 
 function createContextMenus() {
-  var parent = chrome.contextMenus.create({
+  const parent = chrome.contextMenus.create({
     'title': 'Patch',
     'contexts': ['page', 'selection', 'link', 'editable', 'image']
   });
-  var addFacet = chrome.contextMenus.create({
+  const addFacet = chrome.contextMenus.create({
     'title': 'Add facet',
     'id': 'edit',
     'parentId': parent,
     'contexts': ['page', 'selection', 'link', 'editable', 'image']
   });
-  var remove = chrome.contextMenus.create({
+  const remove = chrome.contextMenus.create({
     'title': 'Remove',
     'id': 'remove',
     'parentId': parent,
     'contexts': ['page', 'selection', 'link', 'editable', 'image']
   });
 }
-0
 
 function loadContentScriptInAllTabs() {
   chrome.windows.getAll({ 'populate': true }, function(windows) {
     for (var i = 0; i < windows.length; i++) {
-      var tabs = windows[i].tabs;
+      const tabs = windows[i].tabs;
       for (var j = 0; j < tabs.length; j++) {
         if(!tabs[j].url.substring('chrome://'))
           chrome.tabs.executeScript(
@@ -35,24 +37,24 @@ function loadContentScriptInAllTabs() {
 }
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-  if (info.menuItemId == 'edit') {
+  if (info.menuItemId === 'edit') {
     console.log('Facet edit');
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, { 'type': 'edit' }, function(response) {});
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'edit' }, function(response) {});
     });
-  } else if (info.menuItemId == 'remove') {
+  } else if (info.menuItemId === 'remove') {
     console.log('Facet remove');
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, { 'type': 'remove' }, function(response) {});
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'remove' }, function(response) {});
     });
   }
 });
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if (request.operation == 'addFacet') {
+    if (request.operation === 'addFacet') {
       saveFacet(request.facet, sender.tab.url);
-    } else if (request.operation == 'ping') {
+    } else if (request.operation === 'ping') {
       console.log('Fetching prism for ' + sender.tab.url);
       fetchPrismForURL(sender.tab.url);
       sendResponse('pong');
@@ -73,11 +75,8 @@ function saveFacet(facet, url) {
 }
 
 function createAndFillDB() {
-  var db = new Loki('prism');
-  var prisms = db.addCollection('prisms');
-
   chrome.tabs.query({}, function(tabs) {
-    var allTabURLs = [];
+    const allTabURLs = [];
 
     for (var i = tabs.length - 1; i >= 0; i--) {
       if(tabs[i].url.substring('chrome://') !== -1)
@@ -88,7 +87,7 @@ function createAndFillDB() {
       .get('https://localhost:11111/prism')
       .query({ URLs: JSON.stringify(allTabURLs) })
       .end(function(err, res) {
-        if (err == null) {
+        if (err === null) {
           res.body.forEach( (e) => { console.log(e); prisms.insert(e) });
         }
         else console.log(err)
@@ -102,13 +101,14 @@ function fetchPrismForURL(url) {
     .query({ URLs: JSON.stringify(url) })
     .end(function(err, res) {
         console.log('Fetched prism for ' + url);
-      if (err == null) {
+      if (err === null) {
         res.body.forEach( (e) => { console.log(e); prisms.insert(e) });
         console.log(res.body);
       }
     });
 }
 
+//////////////////////// Init code
 (function init() {
   createAndFillDB();
   createContextMenus();

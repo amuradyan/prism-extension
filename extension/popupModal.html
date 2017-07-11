@@ -4,27 +4,26 @@
         <span id='close' style='float: right'>X</span>
     </div>
     <div id='facet_body'>
-        Error
-        <textarea id='error_text'></textarea>
-        Patch
-        <textarea id='patch_text'></textarea>
-        Attach to
-        <select id='prism_list'>
-            <option>View 1</option>
-            <option>View 2</option>
-            <option>View 3</option>
-            <option>View 4</option>
-            <option>View 5</option>
-            <option>View 6</option>
-        </select>
-        Facet type
-        <select id='facet_types'>
-            <option id='active_facet'>Active</option>
-            <option id='passive_facet'>Passive</option>
-        </select>
-        Topics
-        <input type='text'>
-        <button id='save'>Save</button>
-        <button id='cancel'>Cancel</button>
+        <div>
+            Name
+            <input id='facet_name' type='text'>
+        </div>
+        <div>
+            Error
+            <textarea id='error_text'></textarea>
+        </div>
+        <div>
+            Patch
+            <textarea id='patch_text'></textarea>
+        </div>
+        <div>
+            Facet state
+            <input id="facet_state" type="checkbox" checked>Is active Topics
+            <input id='facet_topics' type='text'>
+        </div>
+        <div>
+            <button id='save'>Save</button>
+            <button id='cancel'>Cancel</button>
+        </div>
     </div>
 </div>

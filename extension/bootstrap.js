@@ -1,12 +1,12 @@
-var FacetFactory = require('./facet.js');
-var PrismFactory = require('./prism.js');
-var selectionSerializer = require('serialize-selection');
-var popupModalHTML = require('html-loader!./popupModal.html');
+const FacetFactory = require('./facet.js');
+const PrismFactory = require('./prism.js');
+const selectionSerializer = require('serialize-selection');
+const popupModalHTML = require('html-loader!./popupModal.html');
 
 var selection;
 
 function addModal() {
-  var popupModal = document.createElement('div');
+  const popupModal = document.createElement('div');
   popupModal.setAttribute('id', 'popup_modal');
   popupModal.innerHTML = popupModalHTML;
   document.body.append(popupModal);
@@ -14,9 +14,9 @@ function addModal() {
 
 // Event listeners
 window.onclick = function(event) {
-  var modal = document.getElementById('popup_modal');
+  const modal = document.getElementById('popup_modal');
 
-  if (event.target == modal) {
+  if (event.target === modal) {
     modal.style.display = 'none';
   }
 }
@@ -27,55 +27,76 @@ function addEventListeners() {
   document.getElementById('close').addEventListener('click', closeModal);
 }
 
-function savePatch() {
-  var errorText = document.getElementById('error_text');
-  var facetSelectElem = document.getElementById('facet_types');
-  var facetType = facetSelectElem.options[facetSelectElem.selectedIndex].text;
+function saveFacet() {
+  const name = document.getElementById('facet_name').value;
+  const source = selectionSerializer.save();
+  const replacement = document.getElementById('patch_text').value;
+  const topics = populateTopicsArray(document.getElementById('facet_topics').value);
+  const state = document.getElementById('facet_state').checked;
 
-  var facet = FacetFactory.createFacet(selection, errorText.innerHTML, facetType);
+  const facet = FacetFactory.createFacet(name, source, replacement, topics, state);
 
-  selection = window.getSelection();
-  var serSel = selectionSerializer.save();
-  console.log(serSel);
-  const newFacet = FacetFactory.createFacet(serSel, '');
-
-  chrome.runtime.sendMessage({ operation: 'addFacet', facet: newFacet }, function(response) {
+  chrome.runtime.sendMessage({ operation: 'addFacet', facet: facet }, function(response) {
     console.log(response);
   });
+}
 
+function populateTopicsArray(topicsString) {
+  const topicsArray = topicsString.trim(' ').split(',');
+
+  if(topicsArray.length === 1 && topicsArray[0] === '')
+    return [];
+  else 
+    return topicsArray;
+}
+
+function savePatch() { 
+  saveFacet();
   closeModal();
 }
 
-function openModal() {
-  var modal = document.getElementById('popup_modal');
-  var patchView = document.getElementById('facet_body');
-  var errorText = document.getElementById('error_text');
-  var activeFacet = document.getElementById('active_facet');
+function openModal(selection) {
+  const modal = document.getElementById('popup_modal');
+  const patchView = document.getElementById('facet_body');
+  const errorText = document.getElementById('error_text');
 
   modal.style.display = 'block'; /* Hidden by default */
   patchView.style.display = 'block';
-  errorText.innerHTML = selection.toString();
-  activeFacet.selected = true;
+  errorText.value = selection;
 }
 
 function closeModal() {
-  var modal = document.getElementById('popup_modal');
+  // Resetting 'state'. Maybe there is a better way to this
+  document.getElementById('facet_name').value = '';
+  document.getElementById('error_text').value = '';
+  document.getElementById('patch_text').value = '';
+  document.getElementById('facet_topics').value = '';
+  document.getElementById('facet_state').checked = true;
+
+  const modal = document.getElementById('popup_modal');
   modal.style.display = 'none';
 }
 
+// Should be moved into users config at some point
+const skipRemovalUI = true;
+
 chrome.extension.onMessage.addListener(
   function(req, sender, respFun) {
-    if (req.type == 'edit') {
-      console.log('Facet edit');
-      openModal({ type: req.type, text: window.getSelection().toString() });
-    } else if (req.type == 'remove') {
-      console.log('Facet remove');
-      savePatch();
+    if (req.type === 'edit') {
+      openModal(window.getSelection().toString());
+    } else if (req.type === 'remove') {
+
+      if(skipRemovalUI)
+        saveFacet();
+      else 
+        openModal(window.getSelection().toString());
+
     } else {
       console.log('Unknown request type');
     }
-  });
+});
 
+//////////////////////// Init code
 function init() {
   addModal();
   addEventListeners();
