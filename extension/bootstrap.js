@@ -1,5 +1,3 @@
-const FacetFactory = require('./facet.js');
-const PrismFactory = require('./prism.js');
 const selectionSerializer = require('serialize-selection');
 const popupModalHTML = require('html-loader!./popupModal.html');
 
@@ -34,23 +32,29 @@ function saveFacet() {
   const topics = populateTopicsArray(document.getElementById('facet_topics').value);
   const state = document.getElementById('facet_state').checked;
 
-  const facet = FacetFactory.createFacet(name, source, replacement, topics, state);
+  const payload = {
+    name,
+    source,
+    replacement,
+    topics,
+    state
+  }
 
-  chrome.runtime.sendMessage({ operation: 'addFacet', facet: facet }, function(response) {
+  chrome.runtime.sendMessage({ operation: 'addFacet', payload: payload }, function(response) {
     console.log(response);
   });
 }
 
 function populateTopicsArray(topicsString) {
-  const topicsArray = topicsString.trim(' ').split(',');
+  const topicsArray = topicsString.replace(/\s+/g, '').split(',');
 
-  if(topicsArray.length === 1 && topicsArray[0] === '')
-    return [];
-  else 
-    return topicsArray;
+  var topics = new Set(topicsArray);
+  topics.delete('');
+
+  return Array.from(topics);
 }
 
-function savePatch() { 
+function savePatch() {
   saveFacet();
   closeModal();
 }
@@ -86,22 +90,22 @@ chrome.extension.onMessage.addListener(
       openModal(window.getSelection().toString());
     } else if (req.type === 'remove') {
 
-      if(skipRemovalUI)
+      if (skipRemovalUI)
         saveFacet();
-      else 
+      else
         openModal(window.getSelection().toString());
 
     } else {
       console.log('Unknown request type');
     }
-});
+  });
 
 //////////////////////// Init code
 function init() {
   addModal();
   addEventListeners();
 
-  chrome.runtime.sendMessage({ operation: 'ping'}, function(response) {
+  chrome.runtime.sendMessage({ operation: 'ping' }, function(response) {
     console.log(response);
   });
 }

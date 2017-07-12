@@ -6,8 +6,9 @@ function Facet(name, source, replacement, topics, state) {
 	this.name = name;
     this.source = source;
     this.replacement = replacement;
-    this.topics = topics;
+    this.topics = Array.from(new Set(topics));
   	this.state = state;
+  	this.creationDate = Date.now();
 }
 
 module.exports = {

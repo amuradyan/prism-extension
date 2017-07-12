@@ -1,17 +1,26 @@
 // Contains facets and operations over them.
-function Prism(url) {
+function Prism(url, facet) {
     this.url = url;
-    this.facets = [];
-    this.topics = new Set();
+
+    if(facet === undefined) {
+	    this.topics = [];
+	    this.facets = [];
+    } else {
+	    this.topics = facet.topics;
+	    this.facets = [facet];
+    }
+
+    this.creationDate = Date.now();
+    	
 
     this.addFacet = function(facet) {
     	this.facets.push(facet);
-    	facet.topics.forEach( e => this.topics.add(e));
+    	facet.topics.forEach( e => this.topics.push(e));
     }
 }
 
 module.exports = {
-    createPrism: function(url) {
-        return new Prism(url);
+    createPrism: function(url, facet) {
+        return new Prism(url, facet);
     }
 };
