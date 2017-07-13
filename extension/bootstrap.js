@@ -1,8 +1,7 @@
 const selectionSerializer = require('serialize-selection');
 const popupModalHTML = require('html-loader!./popupModal.html');
 
-var selection;
-
+var source;
 function addModal() {
   const popupModal = document.createElement('div');
   popupModal.setAttribute('id', 'popup_modal');
@@ -27,7 +26,6 @@ function addEventListeners() {
 
 function saveFacet() {
   const name = document.getElementById('facet_name').value;
-  const source = selectionSerializer.save();
   const replacement = document.getElementById('patch_text').value;
   const topics = populateTopicsArray(document.getElementById('facet_topics').value);
   const state = document.getElementById('facet_state').checked;
@@ -55,7 +53,7 @@ function populateTopicsArray(topicsString) {
 }
 
 function savePatch() {
-  saveFacet();
+  saveFacet(source);
   closeModal();
 }
 
@@ -81,11 +79,13 @@ function closeModal() {
   modal.style.display = 'none';
 }
 
-// Should be moved into users config at some point
+// Should be moved into users preferences at some point
 const skipRemovalUI = true;
 
 chrome.extension.onMessage.addListener(
   function(req, sender, respFun) {
+    source = selectionSerializer.save();
+
     if (req.type === 'edit') {
       openModal(window.getSelection().toString());
     } else if (req.type === 'remove') {

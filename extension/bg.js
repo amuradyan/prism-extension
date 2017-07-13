@@ -119,7 +119,7 @@ function createAndFillDB() {
         if (err === null) {
           res.body.forEach((e) => {
             console.log(e);
-            prisms.insert(e)
+            prisms.insert(PrismFactory.createPrismFromDBResult(e));
           });
         } else console.log(err)
       });
@@ -136,7 +136,7 @@ function fetchPrismForURL(url) {
         if (err === null) {
           res.body.forEach(e => {
             console.log('Prism: ' + e);
-            prisms.insert(e)
+            prisms.insert(PrismFactory.createPrismFromDBResult(e));
           });
           console.log(res.body);
         }
