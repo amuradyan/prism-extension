@@ -1,29 +1,39 @@
 <!doctype html>
 <html>
-
+<head>
+</head>
 <body>
-  <div align="center">
-    <img src="prism.png" height="30px" width="30px">
-  </div>
-  <div>
-    Username
-    <input type="text">
-  </div>
-  <div>
-    Password
-    <input type="password">
-  </div>
-  <div style="margin-top: 3px">
-    <input type="button" value="Login">
-  </div>
-  <div align="center">
-    <div>
-      <a href="">Register</a>
+  <div id='login'>
+    <div align='center'>
+      <img src='prism.png' height='30px' width='30px'>
     </div>
     <div>
-      <a href="">Forgot password?</a>
+      Username <input type='text' id='username'>
+    </div>
+    <div>
+      Password <input type='password' id='password'>
+    </div>
+    <div style='margin-top: 3px'>
+      <input type='button' id='login' value='Login'>
+    </div>
+    <div align='center'>
+      <div>
+        <a href=''>Register</a>
+      </div>
+      <div>
+        <a href=''>Forgot password?</a>
+      </div>
     </div>
   </div>
+  <div id='register' style='display: none'>
+    Name <input type='text' name='name' id='name'>
+    Surname <input type='text' name='surname' id='surname'>
+    Handle <input type='text' name='handle' id='handle'>
+    Password <input type='password' id='password'>
+    <input type='button' value='Register' style='margin-top: 3px'>
+  </div>
+
+  <script src='popup.js'></script>
 </body>
 
 </html>

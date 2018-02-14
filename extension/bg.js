@@ -1,5 +1,3 @@
-// a, a,  , , ss, , ,    ,,,,,dd, d, d
-
 const Loki = require('lokijs');
 const request = require('superagent');
 const PrismFactory = require('./prism.js');
@@ -60,6 +58,8 @@ chrome.runtime.onMessage.addListener(
       saveFacet(request.payload, sender.tab.url);
     } else if (request.operation === 'ping') {
       fetchPrismForURL(sender.tab.url);
+    } else if(request.operation === 'login'){
+      console.log(request.payload);
     }
   });
 
@@ -142,6 +142,10 @@ function fetchPrismForURL(url) {
         }
       });
   }
+}
+
+function foo(){
+  console.log('asd');
 }
 
 //////////////////////// Init code
