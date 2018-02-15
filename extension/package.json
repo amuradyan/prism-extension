@@ -13,7 +13,8 @@
     "lokijs": "*",
     "superagent": "*",
     "html-loader": "*",
-    "serialize-selection": "*"
+    "serialize-selection": "*",
+    "sha.js": "*"
   },
   "scripts": {
     "build": "webpack"

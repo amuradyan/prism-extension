@@ -1,7 +1,10 @@
 <!doctype html>
 <html>
+
 <head>
+  <script src='build/popup_bundle.js'></script>
 </head>
+
 <body>
   <div id='login_view'>
     <div align='center'>
@@ -26,19 +29,19 @@
     </div>
   </div>
   <div id='register_view' style='display: none'>
-    Name <input type='text' name='name' id='name'>
-    Surname <input type='text' name='surname' id='surname'>
-    E-mail <input type='email' name='email' id='reg_email'>
-    Handle <input type='text' name='handle' id='handle'>
-    Password <input type='password' id='password'>
+    Name <input type='text' name='name' id='name'> Surname
+    <input type='text' name='surname' id='surname'> E-mail
+    <input type='email' name='email' id='reg_email'> Handle
+    <input type='text' name='handle' id='handle'> Password
+    <input type='password' id='password'>
     <input type='button' value='Register' id='register' style='margin-top: 3px'>
   </div>
   <div id='forgot_password_view' style='display: none'>
-      E-mail <input type='email' name='email' id='forgot_email'>
-      <input type='button' value='Request new password' id='req_password' style='margin-top: 3px'>
+    E-mail
+    <input type='email' name='email' id='forgot_email'>
+    <input type='button' value='Request new password' id='req_password' style='margin-top: 3px'>
   </div>
 
-  <script src='popup.js'></script>
 </body>
 
 </html>
