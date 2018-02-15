@@ -26,7 +26,7 @@ function createContextMenus() {
 }
 
 function loadContentScriptInAllTabs() {
-  chrome.windows.getAll({ 'populate': true }, function(windows) {
+  chrome.windows.getAll({ 'populate': true }, function (windows) {
     for (var i = 0; i < windows.length; i++) {
       const tabs = windows[i].tabs;
       for (var j = 0; j < tabs.length; j++) {
@@ -38,30 +38,46 @@ function loadContentScriptInAllTabs() {
   });
 }
 
-chrome.contextMenus.onClicked.addListener(function(info, tab) {
+chrome.contextMenus.onClicked.addListener(function (info, tab) {
   if (info.menuItemId === 'edit') {
     console.log('Facet edit');
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: 'edit' }, function(response) {});
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'edit' }, function (response) { });
     });
   } else if (info.menuItemId === 'remove') {
     console.log('Facet remove');
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: 'remove' }, function(response) {});
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'remove' }, function (response) { });
     });
   }
 });
 
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  function (request, sender, sendResponse) {
     if (request.operation === 'addFacet') {
       saveFacet(request.payload, sender.tab.url);
     } else if (request.operation === 'ping') {
       fetchPrismForURL(sender.tab.url);
-    } else if(request.operation === 'login'){
-      console.log(request.payload);
+    } else if (request.operation === 'login') {
+      login(request.payload);
+    } else if (request.operation === 'register') {
+      register(request.payload)
+    } else if (request.operation === 'forgetPassword') {
+      requestNewPassword(request.payload)
     }
   });
+
+function login(credentials) {
+  console.log(credentials);
+}
+
+function register(userSpec) {
+  console.log(userSpec);
+}
+
+function requestNewPassword() {
+  console.log(request.payload);
+}
 
 function saveFacet(rawFacet, url) {
   const facet = FacetFactory.createFacet(rawFacet.name, rawFacet.source,
@@ -85,25 +101,25 @@ function saveFacet(rawFacet, url) {
   request
     .put('https://localhost:11111/prism')
     .send(cleanPrism)
-    .end(function(err, res) {
+    .end(function (err, res) {
       console.log('Response for saving facet');
       console.log(res);
     });
 }
 
 function cleanLokiMeta(prism) {
-    // Loki js brings along two fields after read 'meta' and '$loki'
-    // Have to strip it off :(
-    const cleanPrism = Object.assign({}, prism);
+  // Loki js brings along two fields after read 'meta' and '$loki'
+  // Have to strip it off :(
+  const cleanPrism = Object.assign({}, prism);
 
-    delete cleanPrism['meta'];
-    delete cleanPrism['$loki'];
+  delete cleanPrism['meta'];
+  delete cleanPrism['$loki'];
 
-    return cleanPrism;
+  return cleanPrism;
 }
 
 function createAndFillDB() {
-  chrome.tabs.query({}, function(tabs) {
+  chrome.tabs.query({}, function (tabs) {
     const allTabURLs = [];
 
     for (var i = tabs.length - 1; i >= 0; i--) {
@@ -115,7 +131,7 @@ function createAndFillDB() {
     request
       .get('https://localhost:11111/prism')
       .query({ URLs: JSON.stringify(allTabURLs) })
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err === null) {
           res.body.forEach((e) => {
             console.log(e);
@@ -131,7 +147,7 @@ function fetchPrismForURL(url) {
     request
       .get('https://localhost:11111/prism')
       .query({ URLs: JSON.stringify(url) })
-      .end(function(err, res) {
+      .end(function (err, res) {
         console.log('Fetched prism for ' + url);
         if (err === null) {
           res.body.forEach(e => {
@@ -144,7 +160,7 @@ function fetchPrismForURL(url) {
   }
 }
 
-function foo(){
+function foo() {
   console.log('asd');
 }
 
