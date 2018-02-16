@@ -31,7 +31,7 @@ function initLoginView() {
         const passwordHash = sha512.update(password).digest('hex');
 
         const payload = {
-            username,
+            handle: username,
             passwordHash
         };
 

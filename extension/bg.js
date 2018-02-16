@@ -68,15 +68,38 @@ chrome.runtime.onMessage.addListener(
   });
 
 function login(credentials) {
-  console.log(credentials);
+  console.log("Logging in with credentials : ", credentials);
+  request
+  .post('https://localhost:11111/tokens')
+  .send(credentials)
+  .end(function (err, res) {
+    if(err === null) {
+      if(res.msg === 'Success'){
+        createAndFillDB(res.pld['_id'])
+      }
+      console.log("Success", res);
+    } else {
+      console.log("Error", err);
+    }
+  });
 }
 
 function register(userSpec) {
-  console.log(userSpec);
+  console.log("registering user : ", userSpec);
+  request
+  .post('https://localhost:11111/users')
+  .send(userSpec)
+  .end(function (err, res) {
+    if(err === null) {
+      console.log("Success", res);
+    } else {
+      console.log("Error", err);
+    }
+  });
 }
 
-function requestNewPassword() {
-  console.log(request.payload);
+function requestNewPassword(email) {
+  console.log(email);
 }
 
 function saveFacet(rawFacet, url) {
@@ -118,7 +141,7 @@ function cleanLokiMeta(prism) {
   return cleanPrism;
 }
 
-function createAndFillDB() {
+function createAndFillDB(userId) {
   chrome.tabs.query({}, function (tabs) {
     const allTabURLs = [];
 
@@ -129,7 +152,8 @@ function createAndFillDB() {
     }
 
     request
-      .get('https://localhost:11111/prism')
+      .get('https://localhost:11111/users/${userId}/prisms')
+      .path
       .query({ URLs: JSON.stringify(allTabURLs) })
       .end(function (err, res) {
         if (err === null) {
@@ -158,10 +182,6 @@ function fetchPrismForURL(url) {
         }
       });
   }
-}
-
-function foo() {
-  console.log('asd');
 }
 
 //////////////////////// Init code
