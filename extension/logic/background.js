@@ -1,7 +1,7 @@
 const Loki = require('lokijs');
 const request = require('superagent');
-const PrismFactory = require('./domain/prism.js');
-const FacetFactory = require('./domain/facet.js');
+const PrismFactory = require('../types/prism.js');
+const FacetFactory = require('../types/facet.js');
 
 const db = new Loki('prism');
 const prisms = db.addCollection('prisms');

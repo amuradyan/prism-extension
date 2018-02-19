@@ -1,8 +1,8 @@
 module.exports = {
-    entry: ['./popup.js'],
+    entry: ['./logic/popup.js'],
     node: { fs: 'empty' },
     output: {
-        filename: 'popup_bundle.js',
+        filename: 'popup.js',
         path: __dirname + '/../build'
     }
 }

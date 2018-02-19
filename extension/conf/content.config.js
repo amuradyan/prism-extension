@@ -1,5 +1,5 @@
 module.exports = {
-    entry: ['./bootstrap.js'],
+    entry: './logic/content.js',
     node: { fs: 'empty' },
     output: {
         filename: 'content.js',

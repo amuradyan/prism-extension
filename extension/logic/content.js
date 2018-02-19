@@ -1,5 +1,5 @@
 const selectionSerializer = require('serialize-selection');
-const popupModalHTML = require('html-loader!./markup/popupModal.html');
+const popupModalHTML = require('html-loader!../markup/popupModal.html');
 
 var source;
 function addModal() {

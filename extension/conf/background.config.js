@@ -1,5 +1,5 @@
 module.exports = {
-    entry: './bg.js',
+    entry: './logic/background.js',
     node: { fs: 'empty' },
     output: {
         filename: 'background.js',
