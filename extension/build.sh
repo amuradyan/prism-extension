@@ -1,5 +1,5 @@
 npm i
 
-webpack --config background.config.js
-webpack --config content.config.js
-webpack --config popup.config.js
+webpack --config conf/background.config.js
+webpack --config conf/content.config.js
+webpack --config conf/popup.config.js

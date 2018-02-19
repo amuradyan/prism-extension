@@ -1,5 +1,5 @@
 const selectionSerializer = require('serialize-selection');
-const popupModalHTML = require('html-loader!./popupModal.html');
+const popupModalHTML = require('html-loader!./markup/popupModal.html');
 
 var source;
 function addModal() {
@@ -10,7 +10,7 @@ function addModal() {
 }
 
 // Event listeners
-window.onclick = function(event) {
+window.onclick = function (event) {
   const modal = document.getElementById('popup_modal');
 
   if (event.target === modal) {
@@ -38,7 +38,7 @@ function saveFacet() {
     state
   }
 
-  chrome.runtime.sendMessage({ operation: 'addFacet', payload: payload }, function(response) {
+  chrome.runtime.sendMessage({ operation: 'addFacet', payload: payload }, function (response) {
     console.log(response);
   });
 }
@@ -83,7 +83,7 @@ function closeModal() {
 const skipRemovalUI = true;
 
 chrome.extension.onMessage.addListener(
-  function(req, sender, respFun) {
+  function (req, sender, respFun) {
     source = selectionSerializer.save();
 
     if (req.type === 'edit') {
@@ -105,12 +105,12 @@ function init() {
   addModal();
   addEventListeners();
 
-  chrome.runtime.sendMessage({ operation: 'ping' }, function(response) {
+  chrome.runtime.sendMessage({ operation: 'ping' }, function (response) {
     console.log(response);
   });
 }
 
-document.onreadystatechange = function() {
+document.onreadystatechange = function () {
   if (document.readyState === 'complete') {
     init();
   }

@@ -1,7 +1,7 @@
 const Loki = require('lokijs');
 const request = require('superagent');
-const PrismFactory = require('./prism.js');
-const FacetFactory = require('./facet.js');
+const PrismFactory = require('./domain/prism.js');
+const FacetFactory = require('./domain/facet.js');
 
 const db = new Loki('prism');
 const prisms = db.addCollection('prisms');
@@ -70,32 +70,32 @@ chrome.runtime.onMessage.addListener(
 function login(credentials) {
   console.log("Logging in with credentials : ", credentials);
   request
-  .post('https://localhost:11111/tokens')
-  .send(credentials)
-  .end(function (err, res) {
-    if(err === null) {
-      if(res.msg === 'Success'){
-        createAndFillDB(res.pld['_id'])
+    .post('https://localhost:11111/tokens')
+    .send(credentials)
+    .end(function (err, res) {
+      if (err === null) {
+        if (res.msg === 'Success') {
+          createAndFillDB(res.pld['_id'])
+        }
+        console.log("Success", res);
+      } else {
+        console.log("Error", err);
       }
-      console.log("Success", res);
-    } else {
-      console.log("Error", err);
-    }
-  });
+    });
 }
 
 function register(userSpec) {
   console.log("registering user : ", userSpec);
   request
-  .post('https://localhost:11111/users')
-  .send(userSpec)
-  .end(function (err, res) {
-    if(err === null) {
-      console.log("Success", res);
-    } else {
-      console.log("Error", err);
-    }
-  });
+    .post('https://localhost:11111/users')
+    .send(userSpec)
+    .end(function (err, res) {
+      if (err === null) {
+        console.log("Success", res);
+      } else {
+        console.log("Error", err);
+      }
+    });
 }
 
 function requestNewPassword(email) {
@@ -153,7 +153,6 @@ function createAndFillDB(userId) {
 
     request
       .get('https://localhost:11111/users/${userId}/prisms')
-      .path
       .query({ URLs: JSON.stringify(allTabURLs) })
       .end(function (err, res) {
         if (err === null) {

@@ -1,27 +1,31 @@
 {
   "manifest_version": 2,
-
   "name": "Prism",
   "description": "This extension serves a an errata for web resources",
   "version": "1.0",
-
   "browser_action": {
-    "default_icon": "prism.png",
-    "default_popup": "popup.html"
+    "default_icon": "resources/prism.png",
+    "default_popup": "markup/popup.html"
   },
- 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
-      "css": ["mystyle.css"],
-      "js": ["build/content.js"]    
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "css": [
+        "markup/prism.css"
+      ],
+      "js": [
+        "build/content.js"
+      ]
     }
   ],
-
   "background": {
-    "scripts": ["build/background.js"]
+    "scripts": [
+      "build/background.js"
+    ]
   },
-
   "permissions": [
     "http://*/",
     "https://*/",
