@@ -14,7 +14,7 @@
         "https://*/*"
       ],
       "css": [
-        "markup/prism.css"
+        "markup/styles/prism.css"
       ],
       "js": [
         "build/content.js"
