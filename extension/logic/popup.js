@@ -1,4 +1,6 @@
-const sha512 = require('sha.js')('sha512');
+const shajs = require('sha.js');
+const prismURL = 'https://prism.melbourne/';
+
 
 document.onreadystatechange = function () {
     if (document.readyState === 'complete') {
@@ -10,12 +12,24 @@ function init() {
     initLoginView();
     initRegisterView()
     initForgotPasswordView();
+    initLoggedInView();
+
+    chrome.cookies.get({ url: prismURL, name: 'credentials' }, function (cookie) {
+        if (cookie) {
+            const credentials = JSON.parse(cookie.value);
+            console.log('Prism credentials coocie found ', credentials);
+            login(credentials.username, credentials.password);
+        } else {
+            console.log('no cookies found for prism');
+        }
+    });
 }
 
 function initLoginView() {
     document.getElementById('lv_do_register').addEventListener('click', function () {
         document.getElementById('register_view').style.display = 'block';
         document.getElementById('login_view').style.display = 'none';
+        document.getElementById('forgot_password_view').style.display = 'none';
         document.getElementById('forgot_password_view').style.display = 'none';
     });
 
@@ -28,16 +42,27 @@ function initLoginView() {
     document.getElementById('login').addEventListener('click', function () {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        const passwordHash = sha512.update(password).digest('hex');
 
-        const payload = {
-            handle: username,
-            passwordHash
-        };
+        if (document.getElementById('remember_me').checked) {
+            const cookie = {
+                url: prismURL,
+                name: 'credentials',
+                value: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+            };
 
-        chrome.runtime.sendMessage({ operation: 'login', payload: payload }, function (response) {
-            console.log(response);
-        });
+            chrome.cookies.set(cookie, function (c) {
+                if (c) {
+                    console.log('Cookie stored for user' + username);
+                } else {
+                    console.log('Unable to store cookie for user' + username);
+                }
+            });
+        }
+
+        login(username, password);
     });
 }
 
@@ -60,7 +85,7 @@ function initRegisterView() {
         const email = document.getElementById('reg_email').value;
         const handle = document.getElementById('handle').value;
         const regPassword = document.getElementById('reg_password').value;
-        const regPasswordHash = sha512.update(regPassword).digest('hex');
+        const regPasswordHash = new shajs('sha512').update(regPassword).digest('hex');
 
         const payload = {
             name,
@@ -91,7 +116,6 @@ function initForgotPasswordView() {
 
     document.getElementById('req_password').addEventListener('click', function () {
         const email = document.getElementById('forgot_email').value;
-
         const payload = {
             email
         };
@@ -101,3 +125,41 @@ function initForgotPasswordView() {
         });
     });
 }
+
+function initLoggedInView() {
+    document.getElementById('liv_do_logout').addEventListener('click', function () {
+        document.getElementById('logged_in_view').style.display = 'none';
+        document.getElementById('logged_out_view').style.display = 'block';    
+        chrome.cookies.remove({ url: prismURL, name: 'credentials' }, function () {
+            console.log('Removed prism credentials from cookies');
+        })
+    });
+}
+
+function login(username, password) {
+    console.log('Logging in with ', username, password);
+    const pwdHash = new shajs('sha512').update(password).digest('hex');
+
+    const payload = {
+        handle: username,
+        passwordHash: pwdHash
+    };
+
+    console.log(payload);
+
+    chrome.runtime.sendMessage({ operation: 'login', payload: payload });
+}
+
+function switchToLoggedInView(){
+    document.getElementById('logged_in_view').style.display = 'block';
+    document.getElementById('logged_out_view').style.display = 'none';
+}
+
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        if (request.operation === 'login_success') {
+            saveFacet(request.payload, sender.tab.url);
+        } else if (request.operation === 'login_failure') {
+            login(request.payload);
+        }
+    });

@@ -104,10 +104,6 @@ chrome.extension.onMessage.addListener(
 function init() {
   addModal();
   addEventListeners();
-
-  chrome.runtime.sendMessage({ operation: 'ping' }, function (response) {
-    console.log(response);
-  });
 }
 
 document.onreadystatechange = function () {

@@ -56,8 +56,6 @@ chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     if (request.operation === 'addFacet') {
       saveFacet(request.payload, sender.tab.url);
-    } else if (request.operation === 'ping') {
-      fetchPrismForURL(sender.tab.url);
     } else if (request.operation === 'login') {
       login(request.payload);
     } else if (request.operation === 'register') {
@@ -171,8 +169,8 @@ function fetchPrismForURL(url) {
       .get('https://localhost:11111/prism')
       .query({ URLs: JSON.stringify(url) })
       .end(function (err, res) {
-        console.log('Fetched prism for ' + url);
         if (err === null) {
+          console.log('Fetched prism for ' + url);
           res.body.forEach(e => {
             console.log('Prism: ' + e);
             prisms.insert(PrismFactory.createPrismFromDBResult(e));
@@ -185,7 +183,6 @@ function fetchPrismForURL(url) {
 
 //////////////////////// Init code
 (function init() {
-  createAndFillDB();
   createContextMenus();
   loadContentScriptInAllTabs();
 })();

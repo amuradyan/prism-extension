@@ -31,6 +31,7 @@
     "https://*/",
     "contextMenus",
     "activeTab",
-    "tabs"
+    "tabs",
+    "cookies"
   ]
 }
