@@ -6,6 +6,15 @@ const FacetFactory = require('../types/facet.js');
 const db = new Loki('prism');
 const prisms = db.addCollection('prisms');
 
+const prismBackend = 'http://localhost:1111/';
+// const prismBackend = 'https://localhost:11111/';
+
+const headers = {
+  'Access-Control-Allow-Origin': '*'
+}
+
+let currentUser;
+
 function createContextMenus() {
   const parent = chrome.contextMenus.create({
     'title': 'Patch',
@@ -57,7 +66,12 @@ chrome.runtime.onMessage.addListener(
     if (request.operation === 'addFacet') {
       saveFacet(request.payload, sender.tab.url);
     } else if (request.operation === 'login') {
-      login(request.payload);
+      if(!currentUser){
+        console.log('No user found. Logging in')
+        login(request.payload);
+      } else {
+        console.log('Already logged in')
+      }
     } else if (request.operation === 'register') {
       register(request.payload)
     } else if (request.operation === 'forgetPassword') {
@@ -68,16 +82,24 @@ chrome.runtime.onMessage.addListener(
 function login(credentials) {
   console.log("Logging in with credentials : ", credentials);
   request
-    .post('https://localhost:11111/tokens')
+    .post(prismBackend + 'tokens')
+    .set(headers)
     .send(credentials)
     .end(function (err, res) {
-      if (err === null) {
-        if (res.msg === 'Success') {
-          createAndFillDB(res.pld['_id'])
-        }
-        console.log("Success", res);
+      if (err === null && res.body.msg === 'Success') {
+        currentUser = res.body.pld['_id'];
+        createAndFillDB(currentUser);
+
+        chrome.runtime.sendMessage({ operation: 'login_success', payload: { cool: "cool" } }, function (response) {
+          console.log(response);
+        });
+
+        console.log("Success", res.body);
       } else {
         console.log("Error", err);
+        chrome.runtime.sendMessage({ operation: 'login_failure', payload: { cool: "not cool" } }, function (response) {
+          console.log(response);
+        });
       }
     });
 }
@@ -85,7 +107,7 @@ function login(credentials) {
 function register(userSpec) {
   console.log("registering user : ", userSpec);
   request
-    .post('https://localhost:11111/users')
+    .post(prismBackend + 'users')
     .send(userSpec)
     .end(function (err, res) {
       if (err === null) {
@@ -102,12 +124,12 @@ function requestNewPassword(email) {
 
 function saveFacet(rawFacet, url) {
   const facet = FacetFactory.createFacet(rawFacet.name, rawFacet.source,
-    rawFacet.replacement, rawFacet.topics, rawFacet.state);
+    rawFacet.replacement, rawFacet.topics, rawFacet.state, currentUser);
 
   var prism = prisms.findOne({ url: url })
 
   if (prism == null) {
-    prism = PrismFactory.createPrism(url, facet);
+    prism = PrismFactory.createPrism(url, facet, currentUser);
     prisms.insert(prism);
   } else {
     // This will automatically update the Loki since, I assume, it references 
@@ -120,7 +142,7 @@ function saveFacet(rawFacet, url) {
   const cleanPrism = cleanLokiMeta(prism);
 
   request
-    .put('https://localhost:11111/prism')
+    .put(prismBackend + 'user/' + currentUser + '/prisms')
     .send(cleanPrism)
     .end(function (err, res) {
       console.log('Response for saving facet');
@@ -150,7 +172,7 @@ function createAndFillDB(userId) {
     }
 
     request
-      .get('https://localhost:11111/users/${userId}/prisms')
+      .get(prismBackend + 'users/' + userId + '/prisms')
       .query({ URLs: JSON.stringify(allTabURLs) })
       .end(function (err, res) {
         if (err === null) {
@@ -166,7 +188,7 @@ function createAndFillDB(userId) {
 function fetchPrismForURL(url) {
   if (prisms.findOne({ url: url }) == null) {
     request
-      .get('https://localhost:11111/prism')
+      .get(prismBackend + 'prism')
       .query({ URLs: JSON.stringify(url) })
       .end(function (err, res) {
         if (err === null) {

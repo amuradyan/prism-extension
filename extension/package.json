@@ -14,7 +14,8 @@
     "superagent": "*",
     "html-loader": "*",
     "serialize-selection": "*",
-    "sha.js": "*"
+    "sha.js": "*",
+    "cors": "*"
   },
   "scripts": {
     "build": "webpack"

@@ -158,8 +158,8 @@ function switchToLoggedInView(){
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.operation === 'login_success') {
-            saveFacet(request.payload, sender.tab.url);
+            switchToLoggedInView();
         } else if (request.operation === 'login_failure') {
-            login(request.payload);
+            document.getElementById('lv_login_failure').style.display = 'block';
         }
     });
