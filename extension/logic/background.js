@@ -71,13 +71,22 @@ chrome.runtime.onMessage.addListener(
         login(request.payload);
       } else {
         console.log('Already logged in')
+        chrome.runtime.sendMessage({ operation: 'login_success', payload: { cool: "cool" } }, function (response) {
+          console.log(response);
+        });
       }
     } else if (request.operation === 'register') {
       register(request.payload)
     } else if (request.operation === 'forgetPassword') {
       requestNewPassword(request.payload)
+    } else if (request.operation === 'logout') {
+      logout();
     }
   });
+
+  function logout() {
+    currentUser = null;
+  }
 
 function login(credentials) {
   console.log("Logging in with credentials : ", credentials);
@@ -130,6 +139,7 @@ function saveFacet(rawFacet, url) {
 
   if (prism == null) {
     prism = PrismFactory.createPrism(url, facet, currentUser);
+    console.log(prism, currentUser);
     prisms.insert(prism);
   } else {
     // This will automatically update the Loki since, I assume, it references 
@@ -142,7 +152,7 @@ function saveFacet(rawFacet, url) {
   const cleanPrism = cleanLokiMeta(prism);
 
   request
-    .put(prismBackend + 'user/' + currentUser + '/prisms')
+    .put(prismBackend + 'users/' + currentUser + '/prisms')
     .send(cleanPrism)
     .end(function (err, res) {
       console.log('Response for saving facet');

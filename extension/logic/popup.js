@@ -130,6 +130,9 @@ function initLoggedInView() {
     document.getElementById('liv_do_logout').addEventListener('click', function () {
         document.getElementById('logged_in_view').style.display = 'none';
         document.getElementById('logged_out_view').style.display = 'block';    
+
+        chrome.runtime.sendMessage({ operation: 'logout', payload: {} });
+
         chrome.cookies.remove({ url: prismURL, name: 'credentials' }, function () {
             console.log('Removed prism credentials from cookies');
         })
