@@ -7,6 +7,7 @@ const db = new Loki('prism');
 const prisms = db.addCollection('prisms');
 
 const prismBackend = 'http://localhost:1111/';
+const prismURL = 'https://prism.melbourne/';
 // const prismBackend = 'https://localhost:11111/';
 
 const headers = {
@@ -47,53 +48,83 @@ function loadContentScriptInAllTabs() {
   });
 }
 
-chrome.contextMenus.onClicked.addListener(function (info, tab) {
-  if (info.menuItemId === 'edit') {
-    console.log('Facet edit');
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: 'edit' }, function (response) { });
-    });
-  } else if (info.menuItemId === 'remove') {
-    console.log('Facet remove');
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: 'remove' }, function (response) { });
-    });
-  }
-});
-
-chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
-    if (request.operation === 'addFacet') {
-      saveFacet(request.payload, sender.tab.url);
-    } else if (request.operation === 'login') {
-      if(!currentUser){
-        console.log('No user found. Logging in')
-        login(request.payload);
-      } else {
-        console.log('Already logged in')
-        chrome.runtime.sendMessage({ operation: 'login_success', payload: { cool: "cool" } }, function (response) {
-          console.log(response);
-        });
-      }
-    } else if (request.operation === 'register') {
-      register(request.payload)
-    } else if (request.operation === 'forgetPassword') {
-      requestNewPassword(request.payload)
-    } else if (request.operation === 'logout') {
-      logout();
+function addCtxMenuListeners() {
+  chrome.contextMenus.onClicked.addListener(function (info, tab) {
+    if (info.menuItemId === 'edit') {
+      console.log('Facet edit');
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: 'edit' }, function (response) { });
+      });
+    } else if (info.menuItemId === 'remove') {
+      console.log('Facet remove');
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: 'remove' }, function (response) { });
+      });
     }
   });
+}
 
-  function logout() {
-    currentUser = null;
-  }
+function addChromeMessageListeners() {
+  chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+      if (request.operation === 'addFacet') {
+        saveFacet(request.payload, sender.tab.url);
+      } else if (request.operation === 'login') {
+        if (!currentUser) {
+          console.log('No user found. Logging in')
+          login(request.payload);
+        } else {
+          console.log('Already logged in')
+          chrome.runtime.sendMessage({ operation: 'login_success', payload: { cool: "cool" } }, function (response) {
+            console.log(response);
+          });
+        }
+      } else if (request.operation === 'register') {
+        register(request.payload)
+      } else if (request.operation === 'forgetPassword') {
+        requestNewPassword(request.payload)
+      } else if (request.operation === 'logout') {
+        logout();
+      }
+    });
+}
 
-function login(credentials) {
-  console.log("Logging in with credentials : ", credentials);
+
+function logout() {
+  currentUser = null;
+  chrome.cookies.remove({ url: prismURL, name: 'credentials' }, function () {
+    console.log('Removed prism credentials from cookies');
+  });
+}
+
+function storeCredentialsToCookies(username, password) {
+  const cookie = {
+    url: prismURL,
+    name: 'credentials',
+    value: JSON.stringify({
+      username: username,
+      password: password
+    }),
+  };
+
+  chrome.cookies.set(cookie, function (c) {
+    if (c) {
+      console.log('Cookie stored for user' + username);
+    } else {
+      console.log('Unable to store cookie for user' + username);
+    }
+  });
+}
+
+function loginreq(username, password) {
+  console.log("Logging in with credentials : ", username, password);
   request
     .post(prismBackend + 'tokens')
     .set(headers)
-    .send(credentials)
+    .send({ 
+      handle: username, 
+      passwordHash: password 
+    })
     .end(function (err, res) {
       if (err === null && res.body.msg === 'Success') {
         currentUser = res.body.pld['_id'];
@@ -111,6 +142,25 @@ function login(credentials) {
         });
       }
     });
+}
+
+function login(credentials) {
+  if (isEmpty(credentials)) {
+    chrome.cookies.get({ url: prismURL, name: 'credentials' }, function (cookie) {
+      if (cookie) {
+        credentials = JSON.parse(cookie.value);
+        console.log('Prism credentials coocie found ', credentials);
+        loginreq(credentials.username, credentials.password);
+      } else {
+        console.log('No cookies found for prism');
+      }
+    });
+  } else {
+    if (credentials.rememberMe === true) {
+      storeCredentialsToCookies(credentials.username, credentials.password);
+    }
+    loginreq(credentials.username, credentials.password);
+  }
 }
 
 function register(userSpec) {
@@ -213,8 +263,14 @@ function fetchPrismForURL(url) {
   }
 }
 
+function isEmpty(obj) {
+  return Object.keys(obj).length === 0 && obj.constructor === Object
+}
+
 //////////////////////// Init code
 (function init() {
   createContextMenus();
+  addCtxMenuListeners();
   loadContentScriptInAllTabs();
+  addChromeMessageListeners();
 })();

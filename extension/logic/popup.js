@@ -1,29 +1,5 @@
+
 const shajs = require('sha.js');
-const prismURL = 'https://prism.melbourne/';
-
-
-document.onreadystatechange = function () {
-    if (document.readyState === 'complete') {
-        init();
-    }
-}
-
-function init() {
-    initLoginView();
-    initRegisterView()
-    initForgotPasswordView();
-    initLoggedInView();
-
-    chrome.cookies.get({ url: prismURL, name: 'credentials' }, function (cookie) {
-        if (cookie) {
-            const credentials = JSON.parse(cookie.value);
-            console.log('Prism credentials coocie found ', credentials);
-            login(credentials.username, credentials.password);
-        } else {
-            console.log('no cookies found for prism');
-        }
-    });
-}
 
 function initLoginView() {
     document.getElementById('lv_do_register').addEventListener('click', function () {
@@ -40,29 +16,13 @@ function initLoginView() {
     });
 
     document.getElementById('login').addEventListener('click', function () {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        if (document.getElementById('remember_me').checked) {
-            const cookie = {
-                url: prismURL,
-                name: 'credentials',
-                value: JSON.stringify({
-                    username: username,
-                    password: password
-                }),
-            };
-
-            chrome.cookies.set(cookie, function (c) {
-                if (c) {
-                    console.log('Cookie stored for user' + username);
-                } else {
-                    console.log('Unable to store cookie for user' + username);
-                }
-            });
+        const payload = {
+            username: document.getElementById('username').value,
+            password: new shajs('sha512').update(document.getElementById('password').value).digest('hex'),
+            rememberMe: document.getElementById('remember_me').checked
         }
 
-        login(username, password);
+        chrome.runtime.sendMessage({ operation: 'login', payload: payload });
     });
 }
 
@@ -129,40 +89,37 @@ function initForgotPasswordView() {
 function initLoggedInView() {
     document.getElementById('liv_do_logout').addEventListener('click', function () {
         document.getElementById('logged_in_view').style.display = 'none';
-        document.getElementById('logged_out_view').style.display = 'block';    
+        document.getElementById('logged_out_view').style.display = 'block';
 
         chrome.runtime.sendMessage({ operation: 'logout', payload: {} });
-
-        chrome.cookies.remove({ url: prismURL, name: 'credentials' }, function () {
-            console.log('Removed prism credentials from cookies');
-        })
     });
 }
 
-function login(username, password) {
-    console.log('Logging in with ', username, password);
-    const pwdHash = new shajs('sha512').update(password).digest('hex');
-
-    const payload = {
-        handle: username,
-        passwordHash: pwdHash
-    };
-
-    console.log(payload);
-
-    chrome.runtime.sendMessage({ operation: 'login', payload: payload });
-}
-
-function switchToLoggedInView(){
+function switchToLoggedInView() {
     document.getElementById('logged_in_view').style.display = 'block';
     document.getElementById('logged_out_view').style.display = 'none';
 }
 
-chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        if (request.operation === 'login_success') {
-            switchToLoggedInView();
-        } else if (request.operation === 'login_failure') {
-            document.getElementById('lv_login_failure').style.display = 'block';
-        }
-    });
+function init() {
+    initLoginView();
+    initRegisterView()
+    initForgotPasswordView();
+    initLoggedInView();
+
+    chrome.runtime.onMessage.addListener(
+        function (request, sender, sendResponse) {
+            if (request.operation === 'login_success') {
+                switchToLoggedInView();
+            } else if (request.operation === 'login_failure') {
+                document.getElementById('lv_login_failure').style.display = 'block';
+            }
+        });
+
+    chrome.runtime.sendMessage({ operation: 'login', payload: {} });
+}
+
+document.onreadystatechange = function () {
+    if (document.readyState === 'complete') {
+        init();
+    }
+}
