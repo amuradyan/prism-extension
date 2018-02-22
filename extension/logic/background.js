@@ -10,11 +10,12 @@ const prismBackend = 'http://localhost:1111/';
 const prismURL = 'https://prism.melbourne/';
 // const prismBackend = 'https://localhost:11111/';
 
-const headers = {
-  'Access-Control-Allow-Origin': '*'
-}
+let currentUser, jwt;
 
-let currentUser;
+const headers = {
+  'Access-Control-Allow-Origin': '*',
+  'Authorization': 'JWT ' + jwt
+}
 
 function createContextMenus() {
   const parent = chrome.contextMenus.create({
@@ -121,9 +122,9 @@ function loginreq(username, password) {
   request
     .post(prismBackend + 'tokens')
     .set(headers)
-    .send({ 
-      handle: username, 
-      passwordHash: password 
+    .send({
+      handle: username,
+      passwordHash: password
     })
     .end(function (err, res) {
       if (err === null && res.body.msg === 'Success') {
@@ -134,6 +135,7 @@ function loginreq(username, password) {
           console.log(response);
         });
 
+        jwt = res.body.tkn;
         console.log("Success", res.body);
       } else {
         console.log("Error", err);
