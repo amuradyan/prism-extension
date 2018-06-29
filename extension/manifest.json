@@ -1,32 +1,37 @@
 {
   "manifest_version": 2,
-
   "name": "Prism",
-  "description": "This extension shows a Google Image search result for the current page",
+  "description": "This extension serves a an errata for web resources",
   "version": "1.0",
-
   "browser_action": {
-    "default_icon": "prism.png",
-    "default_popup": "popup.html"
+    "default_icon": "resources/prism.png",
+    "default_popup": "markup/popup.html"
   },
- 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
-      "css": ["mystyle.css"],
-      "js": ["brush.js"]    
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "css": [
+        "markup/styles/prism.css"
+      ],
+      "js": [
+        "build/content.js"
+      ]
     }
   ],
-
   "background": {
-    // "persistent": false,
-    "scripts": ["bg.js"]
+    "scripts": [
+      "build/background.js"
+    ]
   },
-
   "permissions": [
     "http://*/",
+    "https://*/",
     "contextMenus",
     "activeTab",
-    "tabs"
+    "tabs",
+    "cookies"
   ]
 }

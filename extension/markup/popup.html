@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="styles/prism.css">
+  <script src='../build/popup.js'></script>
+</head>
+
+<body>
+  <div id='logged_out_view'>
+    <div align='center'>
+      <img src='../resources/prism.png' height='30px' width='30px'>
+    </div>
+    <div id='login_view'>
+      <div>
+        Handle
+        <input type='text' id='username'>
+      </div>
+      <div>
+        Password
+        <input type='password' id='password'>
+      </div>
+      <div id='lv_login_failure' style="color: red; display: none">
+        Unable to login
+      </div>
+      <div style='margin-top: 3px'>
+        <input type='button' id='login' value='Login'>
+        <span style='float: right'>
+          <input id="remember_me" type="checkbox" checked>Remember me
+        </span>
+      </div>
+      <div align='center' style="margin-top: 10px">
+        <div>
+          <button id='lv_do_register' class='link'>Register</button>
+        </div>
+        <div>
+          <button id='lv_do_forgot_password' class='link'>Forgot password?</button>
+        </div>
+      </div>
+    </div>
+    <div id='register_view' style='display: none'>
+      Name
+      <input type='text' name='name' id='name'> Surname
+      <input type='text' name='surname' id='surname'> E-mail
+      <input type='email' name='email' id='reg_email'> Handle
+      <input type='text' name='handle' id='handle'> Password
+      <input type='password' id='reg_password' minlength="8">
+      <input type='button' value='Register' id='register' style='margin-top: 3px'>
+      <div align='center' style="margin-top: 10px">
+        <div>
+          <button id='rv_do_login' class='link'>Login</button>
+        </div>
+        <div>
+          <button id='rv_do_forgot_password' class='link'>Forgot password?</button>
+        </div>
+      </div>
+    </div>
+    <div id='forgot_password_view' style='display: none'>
+      E-mail
+      <input type='email' name='email' id='forgot_email'>
+      <input type='button' value='Request new password' id='req_password' style='margin-top: 3px'>
+      <div align='center' style="margin-top: 10px">
+        <div>
+          <button id='fpv_do_login' class='link'>Login</button>
+        </div>
+        <div>
+          <button id='fpv_do_register' class='link'>Register</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id='logged_in_view' style='display: none'>
+    <span id='logout'>
+      <button id='liv_do_logout' class='link'>Log out</button>
+    </span>
+    <div id='prisms_view'>
+      You logged in man!!!
+    </div>
+    <div id='prism_view' style='display: none'>
+      <div id='facet_name'></div>
+      <div>
+        <input id="facet_state" type="checkbox" checked>Is active
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
