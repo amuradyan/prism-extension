@@ -85,14 +85,14 @@ function initRegisterView() {
         const email = document.getElementById('reg_email').value;
         const handle = document.getElementById('handle').value;
         const regPassword = document.getElementById('reg_password').value;
-        const regPasswordHash = new shajs('sha512').update(regPassword).digest('hex');
+        const passwordHash = new shajs('sha512').update(regPassword).digest('hex');
 
         const payload = {
             name,
             surname,
             email,
             handle,
-            regPasswordHash
+            passwordHash
         };
 
         chrome.runtime.sendMessage({ operation: 'register', payload: payload }, function (response) {

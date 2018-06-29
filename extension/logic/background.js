@@ -6,8 +6,7 @@ const FacetFactory = require('../types/facet.js');
 const db = new Loki('prism');
 const prisms = db.addCollection('prisms');
 
-const prismBackend = 'http://localhost:1111/';
-// const prismBackend = 'https://localhost:11111/';
+const prismBackend = 'http://localhost:8080/';
 
 const headers = {
   'Access-Control-Allow-Origin': '*'
