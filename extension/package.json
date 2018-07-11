@@ -4,20 +4,27 @@
   "description": "Chrome extension for Prism errata",
   "repository": {
     "type": "git",
-    "url": "git+https://darthspectrum@bitbucket.org/praddicts/prism-extension.git"
+    "url": "git+https://github.com/amuradyan/prism-extension.git"
   },
   "author": "Darth Spectrum",
   "license": "ISC",
   "homepage": "https://bitbucket.org/praddicts/prism-extension#readme",
   "dependencies": {
-    "lokijs": "*",
-    "superagent": "*",
+    "cors": "*",
     "html-loader": "*",
+    "lokijs": "*",
     "serialize-selection": "*",
     "sha.js": "*",
-    "cors": "*"
+    "superagent": "*"
   },
   "scripts": {
     "build": "webpack"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-es2015": "^6.24.1",
+    "webpack": "^4.15.1",
+    "webpack-cli": "^3.0.8"
   }
 }

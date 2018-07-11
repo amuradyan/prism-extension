@@ -38,7 +38,7 @@ function saveFacet() {
     state
   }
 
-  chrome.runtime.sendMessage({ operation: 'addFacet', payload: payload }, function (response) {
+  chrome.runtime.sendMessage({ operation: 'add_facet', payload: payload }, function (response) {
     console.log(response);
   });
 }
