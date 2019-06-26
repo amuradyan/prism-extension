@@ -19,13 +19,13 @@ function createContextMenus() {
     'title': 'Patch',
     'contexts': ['page', 'selection', 'link', 'editable', 'image']
   });
-  const addFacet = chrome.contextMenus.create({
+  chrome.contextMenus.create({
     'title': 'Add facet',
     'id': 'edit',
     'parentId': parent,
     'contexts': ['page', 'selection', 'link', 'editable', 'image']
   });
-  const remove = chrome.contextMenus.create({
+  chrome.contextMenus.create({
     'title': 'Remove',
     'id': 'remove',
     'parentId': parent,

@@ -1,8 +1,9 @@
 module.exports = {
-    entry: ['./logic/popup.js'],
+    entry: './src/logic/content.js',
     node: { fs: 'empty' },
+    mode: 'production',
     output: {
-        filename: 'popup.js',
+        filename: 'content.js',
         path: __dirname + '/../build'
     }
 }
