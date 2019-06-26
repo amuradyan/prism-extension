@@ -17,13 +17,13 @@
         "markup/styles/prism.css"
       ],
       "js": [
-        "build/content.js"
+        "src/content.js"
       ]
     }
   ],
   "background": {
     "scripts": [
-      "build/background.js"
+      "src/background.js"
     ]
   },
   "permissions": [

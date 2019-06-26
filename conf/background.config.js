@@ -4,6 +4,6 @@ module.exports = {
     mode: 'production',
     output: {
         filename: 'background.js',
-        path: __dirname + '/../build'
+        path: __dirname + '/../build/src'
     }
 }

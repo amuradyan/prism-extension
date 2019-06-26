@@ -4,6 +4,6 @@ module.exports = {
     mode: 'production',
     output: {
         filename: 'popup.js',
-        path: __dirname + '/../build'
+        path: __dirname + '/../build/src'
     }
 }

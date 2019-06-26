@@ -18,7 +18,8 @@
     "superagent": "*"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "./build.sh",
+    "clean": "rm -rf ./build/"
   },
   "devDependencies": {
     "webpack": "^4.35.0",
