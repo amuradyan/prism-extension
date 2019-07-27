@@ -11,6 +11,7 @@
   "homepage": "https://github.com/amuradyan/prism-extension#readme",
   "dependencies": {
     "cors": "*",
+    "eslint": "^6.1.0",
     "html-loader": "*",
     "lokijs": "*",
     "serialize-selection": "*",
@@ -22,7 +23,12 @@
     "clean": "rm -rf ./build/"
   },
   "devDependencies": {
-    "webpack": "^4.35.0",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@types/sha.js": "^2.4.0",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.36.1",
     "webpack-cli": "^3.3.5"
   }
 }
