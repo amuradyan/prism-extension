@@ -1,5 +1,5 @@
 import Operation from './operation'
-import OperationResult from './operation_result';
+import OperationResult from './operation_result'
 
 const Loki = require('lokijs')
 const request = require('superagent')
@@ -37,31 +37,29 @@ function loadContentScriptInAllTabs() {
   chrome.windows.getAll({
     'populate': true
   }, function (windows) {
-    for (var i = 0; i < windows.length; i++) {
-      const tabs = windows[i].tabs;
-      
-      for (var j = 0; j < tabs.length; j++) {
-        if (!tabs[j].url.substring('chrome://'))
+    windows.forEach(w => {
+      w.tabs.forEach(tab => {
+        if (!tab.url.substring('chrome://'))
           chrome.tabs.executeScript(
-            tabs[j].id, {
+            tabs.id, {
               file: './build/content.js',
               allFrames: true
             })
-      }
-    }
+      })
+    })
   })
 }
 
 function addCtxMenuListeners() {
   chrome.contextMenus.onClicked.addListener(function (info, tab) {
-    console.log(tab.id);
+    console.log(tab.id)
 
     if (info.menuItemId === 'edit') {
       console.log('Facet edit')
       chrome.tabs.sendMessage(tab.id, {
         type: 'edit'
       }, function (response) {
-        console.log(response);
+        console.log(response)
       })
     } else if (info.menuItemId === 'remove') {
       console.log('Facet remove')
@@ -69,7 +67,7 @@ function addCtxMenuListeners() {
       chrome.tabs.sendMessage(tab.id, {
         type: 'remove'
       }, function (response) {
-        console.log(response);
+        console.log(response)
       })
     }
   })
@@ -81,7 +79,7 @@ function addChromeMessageListeners() {
       switch (request.operation) {
         case Operation.ADD_FACET:
           saveFacet(request.payload, sender.tab.url)
-          break;
+          break
         case Operation.LOGIN:
           if (!currentUser) {
             console.log('No user found. Logging in')
@@ -284,13 +282,13 @@ function createAndFillDB(userId) {
   chrome.tabs.query({}, function (tabs) {
     const allTabURLs = []
 
-    for (var i = tabs.length - 1; i >= 0; i--) {
-      if (tabs[i].url.substring('chrome://') !== -1)
+    tabs.forEach(tab => {
+      if (tab.url.substring('chrome://') !== -1)
         if (prisms.findOne({
-            url: tabs[i].url
+            url: tab.url
           }) == null)
-          allTabURLs.push(tabs[i].url);
-    }
+          allTabURLs.push(tab.url)
+    })
 
     request
       .get(prismBackend + 'users/' + userId + '/prisms')
