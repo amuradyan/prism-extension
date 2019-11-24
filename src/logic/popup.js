@@ -24,10 +24,12 @@ function initLoginView() {
       rememberMe: document.getElementById('remember_me').checked
     }
 
-    chrome.runtime.sendMessage({
-      operation: Operation.LOGIN,
+    const msg = {
+      operation: Operation.USER.LOGIN,
       payload: payload
-    })
+    }
+
+    chrome.runtime.sendMessage(msg)
   })
 }
 
@@ -60,10 +62,12 @@ function initRegisterView() {
       passwordHash
     }
 
-    chrome.runtime.sendMessage({
-      operation: Operation.REGISTER,
+    const msg = {
+      operation: Operation.USER.REGISTER,
       payload: payload
-    })
+    }
+
+    chrome.runtime.sendMessage(msg)
   })
 }
 
@@ -86,12 +90,12 @@ function initForgotPasswordView() {
       email
     }
 
-    chrome.runtime.sendMessage({
-      operation: Operation.FORGOT_PASSWORD,
+    const msg = {
+      operation: Operation.USER.FORGOT_PASSWORD,
       payload: payload
-    }, function (response) {
-      console.log(response)
-    })
+    }
+
+    chrome.runtime.sendMessage(msg)
   })
 }
 
@@ -101,7 +105,7 @@ function initLoggedInView() {
     document.getElementById('logged_out_view').style.display = 'block'
 
     chrome.runtime.sendMessage({
-      operation: Operation.LOGOUT,
+      operation: Operation.USER.LOGOUT,
       payload: {}
     })
   })
@@ -128,7 +132,7 @@ function init() {
           document.getElementById('lv_login_failure').style.display = 'block'
           break
         case OperationResult.REGISTER.SUCCESS:
-          switchToLoggedInView()
+          console.log('Successfully registered');
           break
         case OperationResult.REGISTER.FAILURE:
           document.getElementById('reg_failure').style.display = 'block'
@@ -139,10 +143,12 @@ function init() {
       }
     })
 
-  chrome.runtime.sendMessage({
-    operation: Operation.LOGIN,
+  const msg = {
+    operation: Operation.USER.LOGIN,
     payload: {}
-  })
+  }
+
+  chrome.runtime.sendMessage(msg)
 }
 
 document.onreadystatechange = function () {

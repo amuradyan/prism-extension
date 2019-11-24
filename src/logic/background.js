@@ -1,5 +1,6 @@
 import Operation from './operation'
 import OperationResult from './operation_result'
+import HttpStatusCodes from 'http-status-codes'
 
 const Loki = require('lokijs')
 const request = require('superagent')
@@ -76,11 +77,14 @@ function addCtxMenuListeners() {
 function addChromeMessageListeners() {
   chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
+      console.log(request)
+      console.log(sender)
+      
       switch (request.operation) {
-        case Operation.ADD_FACET:
+        case Operation.FACET.ADD_FACET:
           saveFacet(request.payload, sender.tab.url)
           break
-        case Operation.LOGIN:
+        case Operation.USER.LOGIN:
           if (!currentUser) {
             console.log('No user found. Logging in')
             login(request.payload)
@@ -89,20 +93,20 @@ function addChromeMessageListeners() {
             chrome.runtime.sendMessage({
               operation: OperationResult.LOGIN.SUCCESS,
               payload: {
-                cool: "cool"
+                cool: 'cool'
               }
             }, function (response) {
               console.log(response)
             })
           }
           break
-        case Operation.REGISTER:
+        case Operation.USER.REGISTER:
           register(request.payload)
           break
-        case Operation.FORGOT_PASSWORD:
+        case Operation.USER.FORGOT_PASSWORD:
           requestNewPassword(request.payload)
           break
-        case Operation.LOGOUT:
+        case Operation.USER.LOGOUT:
           logout()
           break
         default:
@@ -143,7 +147,7 @@ function storeCredentialsToCookies(username, password) {
 }
 
 function loginreq(username, password) {
-  console.log("Logging in with credentials : ", username, password)
+  console.log('Logging in with credentials : ', username, password)
   request
     .post(prismBackend + 'tokens')
     .send({
@@ -151,27 +155,29 @@ function loginreq(username, password) {
       passwordHash: password
     })
     .end(function (err, res) {
-      if (err === null && res.body.msg === 'Success') {
+      console.log(res);
+      
+      if (res.statusCode === HttpStatusCodes.CREATED) {
         currentUser = res.body.pld['_id']
         createAndFillDB(currentUser)
 
         chrome.runtime.sendMessage({
           operation: OperationResult.LOGIN.SUCCESS,
           payload: {
-            cool: "cool"
+            cool: 'cool'
           }
         }, function (response) {
           console.log(response)
         })
 
         jwt = res.body.tkn
-        console.log("Success", res.body)
+        console.log('Success', res.body)
       } else {
-        console.log("Error", err)
+        console.log('Error', err)
         chrome.runtime.sendMessage({
           operation: OperationResult.LOGIN.FAILURE,
           payload: {
-            cool: "not cool"
+            cool: 'not cool'
           }
         }, function (response) {
           console.log(response)
@@ -181,30 +187,29 @@ function loginreq(username, password) {
 }
 
 function register(userSpec) {
-  console.log("registering user : ", userSpec)
+  console.log('registering user : ', userSpec)
   request
     .post(prismBackend + 'users')
     .send(userSpec)
     .end(function (err, res) {
-      if (err === null) {
-        console.log("Success", res)
+      console.log(res);
+      
+      if (res.statusCode === HttpStatusCodes.CREATED) {
+        console.log('Success', res)
         chrome.runtime.sendMessage({
           operation: OperationResult.REGISTER.SUCCESS,
           payload: {
-            cool: "cool"
+            cool: 'cool'
           }
-        }, function (response) {
-          console.log(response)
         })
+        loginreq(userSpec.handle, userSpec.passwordHash)
       } else {
-        console.log("Error", err)
+        console.log('Error', err)
         chrome.runtime.sendMessage({
           operation: OperationResult.REGISTER.FAILURE,
           payload: {
-            cool: "not cool"
+            cool: 'not cool'
           }
-        }, function (response) {
-          console.log(response)
         })
       }
     })
@@ -240,9 +245,7 @@ function saveFacet(rawFacet, url) {
   const facet = FacetFactory.createFacet(rawFacet.name, rawFacet.source,
     rawFacet.replacement, rawFacet.topics, rawFacet.state, currentUser)
 
-  let prism = prisms.findOne({
-    url: url
-  })
+  let prism = prisms.findOne({url})
 
   if (prism == null) {
     prism = PrismFactory.createPrism(url, facet, currentUser)
@@ -281,7 +284,8 @@ function cleanLokiMeta(prism) {
 function createAndFillDB(userId) {
   chrome.tabs.query({}, function (tabs) {
     const allTabURLs = []
-
+    console.log(tabs);
+    
     tabs.forEach(tab => {
       if (tab.url.substring('chrome://') !== -1)
         if (prisms.findOne({
@@ -316,7 +320,7 @@ function fetchPrismForURL(url) {
         URLs: JSON.stringify(url)
       })
       .end(function (err, res) {
-        if (err === null) {
+        if (res.statusCode === HttpStatusCodes.SUCCESS) {
           console.log('Fetched prism for ' + url)
           res.body.forEach(e => {
             console.log('Prism: ' + e)

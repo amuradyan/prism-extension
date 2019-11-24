@@ -42,12 +42,12 @@ function saveFacet() {
     state
   }
 
-  chrome.runtime.sendMessage({
-    operation: Operation.ADD_FACET,
+  const msg = {
+    operation: Operation.FACET.ADD_FACET,
     payload: payload
-  }, function (response) {
-    console.log(response)
-  })
+  }
+  
+  chrome.runtime.sendMessage(msg)
 }
 
 function populateTopicsArray(topicsString) {
