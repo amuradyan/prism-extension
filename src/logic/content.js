@@ -90,20 +90,25 @@ function closeModal() {
 const skipRemovalUI = true
 
 chrome.runtime.onMessage.addListener(
-  function (req, sender, respFun) {
-    source = selectionSerializer.save()
+  function (req, sender, callback) {
+    const requestType = req.type
 
-    if (req.type === 'edit') {
-      openModal(window.getSelection().toString())
-    } else if (req.type === 'remove') {
-
-      if (skipRemovalUI)
-        saveFacet()
-      else
+    switch (requestType) {
+      case Operation.CONTEXT_MENU.PATCH_SECTION:
+        source = selectionSerializer.save()
         openModal(window.getSelection().toString())
-
-    } else {
-      console.log('Unknown request type')
+        break
+      case Operation.CONTEXT_MENU.ADD_NOTE:
+        break
+      case Operation.CONTEXT_MENU.REMOVE_SECTION:
+        if (skipRemovalUI)
+          saveFacet()
+        else
+          openModal(window.getSelection().toString())
+        break
+      default:
+        console.error('Unknown request type: ', requestType)
+        break
     }
   })
 

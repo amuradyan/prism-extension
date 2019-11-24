@@ -21,16 +21,22 @@ function createContextMenus() {
     'contexts': ['page', 'selection', 'link', 'editable', 'image']
   })
   chrome.contextMenus.create({
-    'title': 'Add facet',
-    'id': 'edit',
+    'title': 'Patch section',
+    'id': Operation.CONTEXT_MENU.PATCH_SECTION,
+    'parentId': parent,
+    'contexts': ['selection']
+  })
+  chrome.contextMenus.create({
+    'title': 'Add note',
+    'id': Operation.CONTEXT_MENU.ADD_NOTE,
     'parentId': parent,
     'contexts': ['page', 'selection', 'link', 'editable', 'image']
   })
   chrome.contextMenus.create({
-    'title': 'Remove',
-    'id': 'remove',
+    'title': 'Remove selection',
+    'id': Operation.CONTEXT_MENU.REMOVE_SECTION,
     'parentId': parent,
-    'contexts': ['page', 'selection', 'link', 'editable', 'image']
+    'contexts': ['selection']
   })
 }
 
@@ -53,23 +59,13 @@ function loadContentScriptInAllTabs() {
 
 function addCtxMenuListeners() {
   chrome.contextMenus.onClicked.addListener(function (info, tab) {
-    console.log(tab.id)
-
-    if (info.menuItemId === 'edit') {
-      console.log('Facet edit')
+    const menuItemId = info.menuItemId.toUpperCase()
+    if (Operation.CONTEXT_MENU[menuItemId] !== undefined) {
       chrome.tabs.sendMessage(tab.id, {
-        type: 'edit'
-      }, function (response) {
-        console.log(response)
-      })
-    } else if (info.menuItemId === 'remove') {
-      console.log('Facet remove')
-
-      chrome.tabs.sendMessage(tab.id, {
-        type: 'remove'
-      }, function (response) {
-        console.log(response)
-      })
+        type: Operation.CONTEXT_MENU[menuItemId]
+      })      
+    } else {
+      console.error('Not our menu item: ', menuItemId)
     }
   })
 }

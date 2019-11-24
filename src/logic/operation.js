@@ -10,6 +10,12 @@ class Operation {
     ADD: 'add_facet',
     REMOVE: 'remove_facet'
   }
+
+  static CONTEXT_MENU = {
+    ADD_NOTE: 'add_note',
+    PATCH_SECTION: 'patch_section',
+    REMOVE_SECTION: 'remove_section'
+  }
 }
 
 export default Operation
