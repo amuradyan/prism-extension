@@ -1,7 +1,7 @@
 {
   "name": "prism-extension",
   "version": "1.0.0",
-  "description": "Chrome extension for Prism errata",
+  "description": "Chrome extension for Prism",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/amuradyan/prism-extension"
@@ -11,25 +11,25 @@
   "homepage": "https://github.com/amuradyan/prism-extension#readme",
   "dependencies": {
     "cors": "*",
-    "eslint": "^6.7.0",
-    "html-loader": "*",
+    "eslint": "^6.8.0",
+    "html-loader": "^1.1.0",
     "http-status-codes": "^1.4.0",
-    "lokijs": "^1.5.8",
+    "lokijs": "^1.5.9",
     "serialize-selection": "*",
     "sha.js": "*",
-    "superagent": "^5.1.1"
+    "superagent": "^5.3.1"
   },
   "scripts": {
     "build": "./build.sh",
     "clean": "rm -rf ./build/"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.4",
-    "@babel/plugin-proposal-class-properties": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
+    "@babel/core": "^7.10.3",
+    "@babel/plugin-proposal-class-properties": "^7.10.1",
+    "@babel/preset-env": "^7.10.3",
     "@types/sha.js": "^2.4.0",
-    "babel-loader": "^8.0.6",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "babel-loader": "^8.1.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
   }
 }
