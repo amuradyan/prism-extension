@@ -29,9 +29,7 @@ module.exports = {
                 use: [{
                     loader: 'html-loader',
                     options: {
-                        minimize: true,
-                        removeComments: false,
-                        collapseWhitespace: false
+                        minimize: true
                     }
                 }]
             }
