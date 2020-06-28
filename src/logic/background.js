@@ -82,7 +82,7 @@ function addChromeMessageListeners() {
           break
         case Operation.USER.LOGIN:
           if (!currentUser) {
-            console.log('No user found. Logging in')
+            console.log('No user logged in. Logging in now with ', request.payload)
             login(request.payload)
           } else {
             console.log('Already logged in')
@@ -111,7 +111,6 @@ function addChromeMessageListeners() {
       }
     })
 }
-
 
 function logout() {
   currentUser = null
@@ -188,9 +187,7 @@ function register(userSpec) {
     .post(prismBackend + 'users')
     .send(userSpec)
     .end(function (err, res) {
-      console.log(res);
-      
-      if (res.statusCode === HttpStatusCodes.CREATED) {
+      if (ers && res.statusCode === HttpStatusCodes.CREATED) {
         console.log('Success', res)
         chrome.runtime.sendMessage({
           operation: OperationResult.REGISTER.SUCCESS,
