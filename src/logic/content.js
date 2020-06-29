@@ -1,8 +1,7 @@
 import Operation from './operation'
-
+import popupModalHTML from '../markup/popupModal.html'
 
 const selectionSerializer = require('serialize-selection')
-const popupModalHTML = require('html-loader!../markup/popupModal.html').replace(/\\r\\n/g, '')
 
 let source
 
@@ -112,7 +111,6 @@ chrome.runtime.onMessage.addListener(
     }
   })
 
-//////////////////////// Init code
 function init() {
   addModal()
   addEventListeners()

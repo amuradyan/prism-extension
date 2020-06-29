@@ -25,11 +25,12 @@ module.exports = {
                 }]
             },
             {
-                test: /\.html$/,
+                test: /\.html$/i,
                 use: [{
                     loader: 'html-loader',
                     options: {
-                        minimize: true
+                        minimize: true,
+                        esModule: true
                     }
                 }]
             }
