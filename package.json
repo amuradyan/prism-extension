@@ -12,10 +12,11 @@
   "dependencies": {
     "cors": "*",
     "eslint": "^6.7.0",
+    "glob-parent": ">=5.1.2",
     "html-loader": "*",
     "http-status-codes": "^1.4.0",
     "lokijs": "^1.5.8",
-    "serialize-selection": "*",
+    "serialize-selection": ">=3.1.0",
     "sha.js": "*",
     "superagent": "^5.1.1"
   },
